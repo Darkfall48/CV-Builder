@@ -264,7 +264,7 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
     )
   }
 
-  if (nonEmpty(doc.identity.phone)) {
+  if (doc.identity.visibility.phone && nonEmpty(doc.identity.phone)) {
     contact.push(
       new TextRun(
         runOptions(ctx, {
@@ -276,8 +276,11 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
     )
   }
 
-  for (const value of [doc.identity.email, doc.identity.location]) {
-    if (!nonEmpty(value)) continue
+  for (const [value, visible] of [
+    [doc.identity.email, doc.identity.visibility.email],
+    [doc.identity.location, doc.identity.visibility.location],
+  ] as const) {
+    if (!visible || !nonEmpty(value)) continue
     separator()
     contact.push(
       new TextRun(
@@ -341,7 +344,10 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
     }
   }
 
-  if (nonEmpty(doc.identity.headline)) {
+  if (
+    doc.identity.visibility.headline &&
+    nonEmpty(doc.identity.headline)
+  ) {
     lines.push({
       children: [
         new TextRun(

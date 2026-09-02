@@ -51,6 +51,9 @@
     "linkUrl": "כתובת",
     "addLink": "הוספת קישור"
   },
+  "rail": {
+    "title": "שלבים"
+  },
   "section": {
     "summary": "תקציר",
     "experience": "ניסיון",

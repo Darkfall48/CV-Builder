@@ -116,10 +116,11 @@ export function readDocument(raw: unknown): CvDocument | null {
   // A document saved by a newer build may hold sections this one cannot
   // render, and silently dropping them would be worse than refusing to open
   // it. Older ones need no migration step: every field below has a fallback,
-  // so a v1 document simply arrives with an empty languages line.
+  // so older documents simply receive safe defaults for missing fields.
   if (version > DOCUMENT_VERSION) return null
 
   const identity = isObject(raw.identity) ? raw.identity : {}
+  const visibility = isObject(identity.visibility) ? identity.visibility : {}
 
   return {
     version: DOCUMENT_VERSION,
@@ -132,6 +133,14 @@ export function readDocument(raw: unknown): CvDocument | null {
       email: str(identity.email),
       phone: str(identity.phone),
       location: str(identity.location),
+      // Documents saved before v3 had no per-field visibility controls. Their
+      // existing identity details remain visible when migrated.
+      visibility: {
+        headline: bool(visibility.headline),
+        email: bool(visibility.email),
+        phone: bool(visibility.phone),
+        location: bool(visibility.location),
+      },
       links: list(identity.links).map((link) => {
         const source = isObject(link) ? link : {}
         return {

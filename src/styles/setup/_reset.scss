@@ -15,6 +15,10 @@ body,
 html {
   // Sign for inline-axis transforms that CSS logical properties cannot express.
   --dir: 1;
+  // Where the pointer light rests until the pointer first moves. Percentages,
+  // not pixels, so the resting position holds at any viewport size.
+  --spot-x: 42%;
+  --spot-y: 18%;
   // Plex Sans Hebrew sits in the stack so Hebrew glyphs outside the Hebrew
   // locale, such as the language switcher label, stay inside the family.
   // Fallback is resolved per character, not per element.
@@ -87,6 +91,10 @@ button {
   cursor: pointer;
   background: none;
   border: 0;
+  // The UA default of 1px 6px squeezes the content box of a fixed-size square
+  // button narrower than its icon, which then overflows to one side instead of
+  // sitting centred. Every button that wants padding declares it.
+  padding: 0;
 }
 
 a {

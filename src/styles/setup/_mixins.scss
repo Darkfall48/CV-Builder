@@ -14,6 +14,7 @@
   transition:
     border-color $ease,
     box-shadow $ease,
+    opacity 240ms $ease-fn,
     background-color 320ms ease;
 
   &::before,
@@ -51,6 +52,10 @@
 
   &:hover {
     border-color: $color-line-strong;
+    box-shadow:
+      inset 0 1px 0 rgb($accent-rgb / 0.14),
+      0 0 0 1px rgb($accent-rgb / 0.04),
+      0 18px 40px rgb($shadow-rgb / $shadow-alpha);
 
     &::before,
     &::after {
@@ -58,6 +63,36 @@
       height: 1.4rem;
       opacity: 1;
     }
+  }
+}
+
+// Rows must never shift on the inline axis: a transform here would overflow
+// the list and force a scrollbar. The spine and background carry the hover.
+@mixin interactive-row {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  padding: clamp(0.4rem, 0.9vh, 0.7rem) 0.6rem;
+  text-align: start;
+  border: 1px solid transparent;
+  border-radius: $radius;
+  transition:
+    background $ease,
+    border-color $ease,
+    box-shadow $ease,
+    color $ease;
+
+  &:hover,
+  &:focus-visible {
+    background: $color-accent-dim;
+    border-color: $color-line;
+    box-shadow: inset 2px 0 0 $color-accent;
+  }
+
+  html[dir="rtl"] &:hover,
+  html[dir="rtl"] &:focus-visible {
+    box-shadow: inset -2px 0 0 $color-accent;
   }
 }
 
@@ -121,12 +156,14 @@
     color $ease,
     border-color $ease,
     background $ease,
+    box-shadow $ease,
     opacity $ease;
 
   &:hover:not(:disabled),
   &:focus-visible:not(:disabled) {
     color: $color-text;
     border-color: rgb($accent-2-rgb / 0.5);
+    box-shadow: 0 0 14px $color-glow-2;
   }
 
   &.is-active,

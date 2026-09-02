@@ -1,5 +1,11 @@
+//? Libraries
+import { useId } from "react"
+
 //? Model
 import type { CvDirection } from "../model/types"
+
+//? Icons
+import { FiEye, FiEyeOff } from "react-icons/fi"
 
 type Props = {
   label: string
@@ -18,6 +24,10 @@ type Props = {
   spellCheck?: boolean
   /** Takes the whole row of a field grid instead of one of its columns. */
   wide?: boolean
+  /** Whether this value is rendered in the preview and exported document. */
+  visible?: boolean
+  onToggleVisible?: () => void
+  visibilityLabel?: string
 }
 
 export function Field({
@@ -32,12 +42,40 @@ export function Field({
   dir,
   spellCheck,
   wide = false,
+  visible = true,
+  onToggleVisible,
+  visibilityLabel,
 }: Props) {
+  const id = useId()
+
   return (
-    <label className={`field${wide ? " is-wide" : ""}`}>
-      <span className="field-label">{label}</span>
+    <div
+      className={`field${wide ? " is-wide" : ""}${visible ? "" : " is-hidden"}`}
+    >
+      <span className="field-head">
+        <label className="field-label" htmlFor={id}>
+          {label}
+        </label>
+        {onToggleVisible ? (
+          <button
+            type="button"
+            className="field-visibility"
+            title={visibilityLabel}
+            aria-label={visibilityLabel}
+            aria-pressed={!visible}
+            onClick={onToggleVisible}
+          >
+            {visible ? (
+              <FiEye aria-hidden="true" />
+            ) : (
+              <FiEyeOff aria-hidden="true" />
+            )}
+          </button>
+        ) : null}
+      </span>
       {multiline ? (
         <textarea
+          id={id}
           className="field-control"
           value={value}
           rows={rows}
@@ -48,6 +86,7 @@ export function Field({
         />
       ) : (
         <input
+          id={id}
           className="field-control"
           type={type}
           value={value}
@@ -58,6 +97,6 @@ export function Field({
         />
       )}
       {hint ? <small className="field-hint">{hint}</small> : null}
-    </label>
+    </div>
   )
 }

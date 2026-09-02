@@ -103,17 +103,17 @@ export function CvPreview({
     contacts.push(<span key={key}>{node}</span>)
   }
 
-  if (filled(doc.identity.phone)) {
+  if (doc.identity.visibility.phone && filled(doc.identity.phone)) {
     pushContact(
       <span className="cv-doc-phone">{doc.identity.phone.trim()}</span>,
       "phone",
     )
   }
-  for (const [key, value] of [
-    ["email", doc.identity.email],
-    ["location", doc.identity.location],
+  for (const [key, value, visible] of [
+    ["email", doc.identity.email, doc.identity.visibility.email],
+    ["location", doc.identity.location, doc.identity.visibility.location],
   ] as const) {
-    if (filled(value)) pushContact(value.trim(), key)
+    if (visible && filled(value)) pushContact(value.trim(), key)
   }
   for (const link of links) {
     pushContact(
@@ -143,7 +143,8 @@ export function CvPreview({
     : []
 
   const hasName = filled(doc.identity.name)
-  const hasHeadline = filled(doc.identity.headline)
+  const hasHeadline =
+    doc.identity.visibility.headline && filled(doc.identity.headline)
   const educationColumn = style.education.hangingMm > 0
 
   const frameStyle = {

@@ -7,7 +7,24 @@ $pad: clamp(0.9rem, 2vw, 1.8rem);
 // and the dock is allowed to cover a little content when that happens.
 $dock: 4.4rem;
 
+// Registered so the drifting light can interpolate instead of jumping.
+@property --drift-x {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 84%;
+}
+
+@property --drift-y {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 86%;
+}
+
 .app {
+  // Own stacking context, so the ambient pseudo-elements can sit at z-index -1
+  // behind the interface without falling behind the body gradient as well.
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 2.4vh, 1.6rem);
@@ -15,9 +32,58 @@ $dock: 4.4rem;
   padding: $pad;
   padding-block-end: calc($pad + env(safe-area-inset-bottom));
 
+  &::before,
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  &::before {
+    background-image:
+      linear-gradient(rgb($grid-rgb / $grid-alpha) 1px, transparent 1px),
+      linear-gradient(90deg, rgb($grid-rgb / $grid-alpha) 1px, transparent 1px);
+    background-size: $grid-size $grid-size;
+    mask-image: radial-gradient(ellipse at 50% 20%, black 18%, transparent 78%);
+  }
+
+  // Two light sources: cyan follows the pointer, violet drifts on its own.
+  &::after {
+    background:
+      radial-gradient(
+        460px circle at var(--spot-x) var(--spot-y),
+        rgb($accent-rgb / 0.12),
+        transparent 44%
+      ),
+      radial-gradient(
+        38vw 32vw at var(--drift-x) var(--drift-y),
+        rgb($accent-2-rgb / 0.14),
+        transparent 62%
+      ),
+      repeating-linear-gradient(
+        180deg,
+        rgb($scanline-rgb / $scanline-alpha) 0 1px,
+        transparent 1px 4px
+      );
+    mix-blend-mode: $blend-lights;
+    animation:
+      scan 9s linear infinite,
+      drift 24s ease-in-out infinite;
+  }
+
   // Room under the last block so the dock never sits on top of it.
   @media (max-width: #{$break-split - 0.02px}) {
     padding-block-end: calc($dock + $pad + env(safe-area-inset-bottom));
+  }
+
+  // One viewport, three columns: the steps, the step being written, and the
+  // sheet it lands on. Nothing here scrolls the page; each column that can
+  // outgrow its cell scrolls inside it.
+  @media (min-width: $break-split) {
+    height: 100dvh;
+    overflow: hidden;
   }
 
   &-main {
@@ -29,15 +95,42 @@ $dock: 4.4rem;
     // The sheet needs its own column before it is worth showing beside the
     // editor; below that width it would be scaled down to a thumbnail.
     @media (min-width: $break-split) {
-      grid-template-columns: minmax(0, 1.05fr) minmax(24rem, 0.95fr);
+      // The rail is sized by its longest label rather than a fraction: a track
+      // in fr units would give a nine-word section heading the same width as
+      // "Setup" and steal it from the editor.
+      grid-template-columns:
+        minmax(9rem, 14rem)
+        minmax(0, 1.05fr)
+        minmax(24rem, 0.95fr);
+      flex: 1;
+      min-height: 0;
+      align-items: stretch;
     }
   }
 
   &-editor {
     display: grid;
-    gap: clamp(0.7rem, 1.4vh, 1.1rem);
+    gap: clamp(0.4rem, 1vh, 0.6rem);
     align-content: start;
     min-width: 0;
+
+    @media (min-width: $break-split) {
+      // Panel, then the saved note. Only the panel takes the leftover height,
+      // so the note stays pinned under it instead of floating mid-column.
+      grid-template-rows: minmax(0, 1fr) auto;
+      align-content: stretch;
+      min-height: 0;
+    }
+  }
+
+  // Carries the frame and the corner brackets so that the block inside is free
+  // to scroll: absolutely positioned brackets on a scrolling box travel with
+  // its content and the bottom one ends up below the fold.
+  &-editor-panel {
+    @include panel;
+    padding: clamp(0.7rem, 1.4vh, 1rem) clamp(0.75rem, 1.1vw, 1.1rem);
+    min-width: 0;
+    overflow: hidden;
   }
 
   &-editor-note {
@@ -57,9 +150,7 @@ $dock: 4.4rem;
     // Following the editor down is the whole point: a page budget you have to
     // scroll back to is a number you stop reading.
     @media (min-width: $break-split) {
-      position: sticky;
-      inset-block-start: $pad;
-      max-height: calc(100vh - 2 * $pad);
+      min-height: 0;
       // Title, sheet, export bar. Only the middle row scrolls, so the gauge
       // and the download button stay put however long the document gets.
       grid-template-rows: auto minmax(0, 1fr) auto;
@@ -81,5 +172,110 @@ $dock: 4.4rem;
 
   &-preview-title {
     padding-inline: 0.2rem;
+  }
+}
+
+// `backwards`, not `both`: a forwards-filled animation outranks plain
+// declarations for as long as it is applied, so a panel that later needs to
+// fade or fold would be held open by its own entrance.
+.app-header,
+.editor-rail,
+.app-editor,
+.app-preview {
+  animation: rise $ease-out backwards;
+}
+
+.app-header {
+  animation-delay: 0.04s;
+}
+
+.editor-rail {
+  animation-delay: 0.12s;
+}
+
+.app-editor {
+  animation-delay: 0.2s;
+}
+
+.app-preview {
+  animation-delay: 0.28s;
+}
+
+// Switching steps remounts the panel, so this replays on every switch. It is
+// deliberately shorter than the staggered entrance above and carries no delay:
+// the cascade is worth watching once, on arrival, and never again on a click.
+.app-editor-panel {
+  animation: step-in 260ms $ease-fn backwards;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    // Along the inline axis, following the rail the click came from. --dir
+    // flips it in RTL, where the rail sits on the other side.
+    transform: translate3d(calc(var(--dir, 1) * -10px), 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scan {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+  }
+
+  to {
+    background-position:
+      0 0,
+      0 0,
+      0 120px;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    --drift-x: 84%;
+    --drift-y: 86%;
+  }
+
+  50% {
+    --drift-x: 60%;
+    --drift-y: 66%;
+  }
+}
+
+@media (min-width: $break-huge) {
+  .app {
+    padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app::after,
+  .app-header,
+  .editor-rail,
+  .app-editor,
+  .app-editor-panel,
+  .app-preview {
+    animation: none;
   }
 }

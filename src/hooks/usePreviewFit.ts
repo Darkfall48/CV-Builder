@@ -14,6 +14,10 @@ export type PreviewFit = {
  * fit. A transform does not shrink the box it paints in, which would leave the
  * page floating over a column of dead space, so the frame is given the scaled
  * height to hold instead.
+ *
+ * The preview is deliberately fitted by width only. In layouts where it sits
+ * beside the editor, its column owns the vertical scroll: the page therefore
+ * stays large enough to read instead of shrinking to leave unused space.
  */
 export function usePreviewFit(
   frameRef: RefObject<HTMLElement | null>,

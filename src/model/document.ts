@@ -9,7 +9,7 @@ import type {
 } from "./types"
 
 /** Bumped whenever a stored document needs migrating. See storage.ts. */
-export const DOCUMENT_VERSION = 2
+export const DOCUMENT_VERSION = 3
 
 /**
  * randomUUID is unavailable over plain http on a LAN address, which is exactly
@@ -76,6 +76,12 @@ export function emptyDocument(seed: DocumentSeed): CvDocument {
       email: "",
       phone: "",
       location: "",
+      visibility: {
+        headline: true,
+        email: true,
+        phone: true,
+        location: true,
+      },
       links: [],
     },
     summary: { title: seed.summaryTitle, visible: true, items: [newLine()] },
@@ -122,6 +128,12 @@ export function exampleDocument(seed: DocumentSeed): CvDocument {
       email: "sidneysebban@gmail.com",
       phone: "",
       location: "",
+      visibility: {
+        headline: true,
+        email: true,
+        phone: true,
+        location: true,
+      },
       links: [
         {
           id: newId(),
@@ -440,7 +452,9 @@ const joined = (...parts: string[]) => parts.filter(Boolean).join(" ")
 
 /** Everything a visible line says, for matching a job ad against the CV. */
 export function documentText(doc: CvDocument): string {
-  const parts: string[] = [doc.identity.headline]
+  const parts: string[] = [
+    doc.identity.visibility.headline ? doc.identity.headline : "",
+  ]
 
   if (doc.summary.visible) {
     for (const item of doc.summary.items) {

@@ -12,13 +12,43 @@
   gap: 0.25rem;
   align-content: start;
   min-width: 0;
+  transition: opacity $ease;
 
   &.is-wide {
     grid-column: 1 / -1;
   }
 
+  // The value stays editable while omitted, like hidden document sections.
+  &.is-hidden {
+    opacity: 0.55;
+  }
+
+  &-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    min-width: 0;
+    // Reserve the toggle's height even when a field has no toggle, so labels
+    // and inputs stay on a shared baseline across a row of the grid.
+    min-block-size: 1.25rem;
+  }
+
   &-label {
     @include hud-label;
+  }
+
+  &-visibility {
+    @include icon-button;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    font-size: 0.68rem;
+
+    &[aria-pressed="true"] {
+      color: $color-accent-2;
+      border-color: rgb($accent-2-rgb / 0.45);
+      background: rgb($accent-2-rgb / 0.12);
+    }
   }
 
   &-control {
@@ -46,17 +76,24 @@
 
 // --- Cards -----------------------------------------------------------------
 
+// The frame, the backdrop and the corner brackets belong to .app-editor-panel
+// around this. Only one block is open at a time, so the block is the panel's
+// contents rather than a card of its own: it fills the panel and takes the
+// scrolling, which brackets pinned to a scrolling box could not survive.
 .editor-block {
   display: grid;
+  align-content: start;
   gap: 0.6rem;
-  padding: 0.7rem 0.85rem 0.8rem;
-  background: $color-surface;
-  border: 1px solid $color-line;
-  border-radius: $radius;
-  box-shadow: inset 0 1px 0 rgb($accent-rgb / 0.06);
-  transition:
-    border-color $ease,
-    opacity $ease;
+  // The panel around this is a flex column and this is its only child, so the
+  // block takes the leftover height rather than asking for a percentage of it.
+  flex: 1;
+  min-block-size: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  // Room for the scrollbar so a block that grows past the panel does not shift
+  // its own fields sideways the moment the bar appears.
+  padding-inline-end: 0.3rem;
+  transition: opacity $ease;
 
   // A section left out of the document stays editable, just visibly parked.
   &.is-hidden {
@@ -68,6 +105,15 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.4rem $space-sm;
+    // Held against the top of the panel: the section heading is also the field
+    // that renames it, and scrolling a long list should not take it away.
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+    padding-block: 0.15rem;
+    // Opaque, unlike the panel it sits in: rows passing under a translucent
+    // header stay legible through it, which reads as a rendering fault.
+    background: $color-bg-mid;
   }
 
   &-title {
@@ -157,6 +203,32 @@ html[lang="he"] .editor-block-heading {
     margin-block-start: 0.45rem;
     padding-inline-start: 0.7rem;
     border-inline-start: 1px solid $color-line;
+  }
+}
+
+// Opening a step deals its rows out rather than pasting them in. The panel is
+// remounted on every step change, so this replays each time and the cascade
+// tells you the list is the new thing on screen. A row added later animates on
+// its own, since it is the only one newly mounted.
+.item-list > .item-row {
+  animation: row-in 320ms $ease-fn backwards;
+}
+
+@for $i from 1 through 8 {
+  .item-list > .item-row:nth-child(#{$i}) {
+    animation-delay: $i * 30ms;
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translate3d(calc(var(--dir, 1) * -8px), 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 

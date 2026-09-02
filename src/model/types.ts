@@ -23,6 +23,12 @@ export type CvIdentity = {
   email: string
   phone: string
   location: string
+  visibility: {
+    headline: boolean
+    email: boolean
+    phone: boolean
+    location: boolean
+  }
   links: CvLink[]
 }
 

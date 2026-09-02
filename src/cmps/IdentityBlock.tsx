@@ -22,6 +22,15 @@ type Props = {
 export function IdentityBlock({ index, identity, onChange, dir }: Props) {
   const { t } = useTranslation()
   const patch = (part: Partial<CvIdentity>) => onChange({ ...identity, ...part })
+  const toggle = (field: keyof CvIdentity["visibility"]) =>
+    patch({
+      visibility: {
+        ...identity.visibility,
+        [field]: !identity.visibility[field],
+      },
+    })
+  const visibilityLabel = (visible: boolean) =>
+    visible ? t("action.hide") : t("action.show")
 
   return (
     <EditorBlock index={index} title={t("identity.title")}>
@@ -37,6 +46,9 @@ export function IdentityBlock({ index, identity, onChange, dir }: Props) {
           value={identity.headline}
           placeholder={t("identity.headlinePlaceholder")}
           dir={dir}
+          visible={identity.visibility.headline}
+          visibilityLabel={visibilityLabel(identity.visibility.headline)}
+          onToggleVisible={() => toggle("headline")}
           onChange={(headline) => patch({ headline })}
         />
         <Field
@@ -44,6 +56,9 @@ export function IdentityBlock({ index, identity, onChange, dir }: Props) {
           value={identity.email}
           type="email"
           spellCheck={false}
+          visible={identity.visibility.email}
+          visibilityLabel={visibilityLabel(identity.visibility.email)}
+          onToggleVisible={() => toggle("email")}
           onChange={(email) => patch({ email })}
         />
         <Field
@@ -51,13 +66,18 @@ export function IdentityBlock({ index, identity, onChange, dir }: Props) {
           value={identity.phone}
           type="tel"
           spellCheck={false}
+          visible={identity.visibility.phone}
+          visibilityLabel={visibilityLabel(identity.visibility.phone)}
+          onToggleVisible={() => toggle("phone")}
           onChange={(phone) => patch({ phone })}
         />
         <Field
           label={t("identity.location")}
           value={identity.location}
           dir={dir}
-          wide
+          visible={identity.visibility.location}
+          visibilityLabel={visibilityLabel(identity.visibility.location)}
+          onToggleVisible={() => toggle("location")}
           onChange={(location) => patch({ location })}
         />
       </div>

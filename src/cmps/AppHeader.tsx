@@ -5,6 +5,9 @@ import { useTranslation } from "react-i18next"
 //? Content / i18n
 import { SUPPORTED_LOCALES } from "../i18n"
 
+//? Components
+import { useRequestLocale } from "./locale-stage-context"
+
 //? Hooks
 import { useTheme } from "../hooks/useTheme"
 
@@ -26,6 +29,7 @@ export function AppHeader({
 }: Props) {
   const { t, i18n } = useTranslation()
   const { theme, toggle } = useTheme()
+  const requestLocale = useRequestLocale()
   const fileRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -82,7 +86,7 @@ export function AppHeader({
               type="button"
               className="app-header-lang-btn"
               aria-pressed={i18n.resolvedLanguage === locale}
-              onClick={() => void i18n.changeLanguage(locale)}
+              onClick={() => requestLocale(locale)}
             >
               {t(`lang.${locale}`)}
             </button>

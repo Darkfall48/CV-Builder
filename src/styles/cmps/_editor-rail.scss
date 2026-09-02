@@ -1,0 +1,142 @@
+@use "../setup/variables" as *;
+@use "../setup/mixins" as *;
+
+.editor-rail {
+  @include panel;
+  padding: clamp(0.7rem, 1.4vh, 1rem) clamp(0.5rem, 0.8vw, 0.75rem);
+  gap: 0.6rem;
+  min-width: 0;
+
+  &-title {
+    padding-inline: 0.6rem;
+  }
+
+  &-list {
+    display: grid;
+    align-content: start;
+    gap: 0.1rem;
+    // Takes the height left under the title and scrolls within it, so a narrow
+    // window shortens the list instead of pushing it past the panel.
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  &-step {
+    @include interactive-row;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.55rem;
+    color: $color-muted;
+
+    // The open step is the one piece of the interface that has to be legible
+    // at a glance from across the column, so it gets the full accent treatment
+    // rather than the hover's.
+    &.is-active {
+      color: $color-text;
+      background: $color-accent-dim;
+      border-color: $color-line;
+      box-shadow: inset 2px 0 0 $color-accent;
+    }
+
+    html[dir="rtl"] &.is-active {
+      box-shadow: inset -2px 0 0 $color-accent;
+    }
+
+    // Written, but deliberately left out of the export. Dimmed the same way
+    // the section card itself is when its eye is closed.
+    &.is-omitted &-label {
+      opacity: 0.55;
+      text-decoration: line-through;
+      text-decoration-color: $color-line-strong;
+    }
+  }
+
+  &-index {
+    font-family: $font-mono;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    color: rgb($accent-2-rgb / 0.55);
+    transition: color $ease;
+  }
+
+  &-step.is-active &-index {
+    color: $color-accent-2;
+  }
+
+  &-label {
+    min-width: 0;
+    font-size: 0.78rem;
+    // One line per step: the rail is a map, and a wrapped heading turns it
+    // into a second document to read.
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transition: opacity $ease;
+  }
+
+  &-state {
+    display: grid;
+    place-items: center;
+    inline-size: 0.9rem;
+    font-size: 0.72rem;
+    color: $color-accent;
+  }
+
+  // The empty state: a step with nothing in it yet reads as an outline rather
+  // than a tick, so the filled ones stand out without a legend.
+  &-dot {
+    inline-size: 0.32rem;
+    block-size: 0.32rem;
+    border: 1px solid $color-line-strong;
+    border-radius: 50%;
+  }
+
+  // Below the split the rail turns into a strip above the editor. Same steps,
+  // same order, laid on the inline axis and scrolled sideways.
+  @media (max-width: #{$break-split - 0.02px}) {
+    padding: 0.6rem;
+
+    &-title {
+      // The strip is directly above the panel it drives, which says what it is
+      // more plainly than a heading would.
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      padding: 0;
+      clip-path: inset(50%);
+      overflow: hidden;
+    }
+
+    &-list {
+      grid-auto-flow: column;
+      grid-auto-columns: max-content;
+      gap: 0.3rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      // Keep the native horizontal scrollbar visible. It makes every step
+      // discoverable and avoids clipping the first digits behind an edge mask.
+      scrollbar-gutter: stable;
+    }
+
+    &-step {
+      // A tick beside a truncated label wastes the width the label needs.
+      grid-template-columns: auto auto;
+      padding-block: 0.35rem;
+    }
+
+    &-state {
+      display: none;
+    }
+
+    &-label {
+      max-inline-size: 9rem;
+    }
+  }
+}
+
+html[lang="he"] .editor-rail-title {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}

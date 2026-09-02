@@ -24,6 +24,14 @@ $color-halo-2: var(--color-halo-2);
 $shadow-rgb: var(--color-shadow-rgb);
 $shadow-alpha: var(--color-shadow-alpha);
 
+// Ambient layers behind the interface: HUD grid, scanlines, and the blend mode
+// that decides whether the moving lights add or subtract.
+$grid-rgb: var(--color-grid-rgb);
+$grid-alpha: var(--color-grid-alpha);
+$scanline-rgb: var(--color-scanline-rgb);
+$scanline-alpha: var(--color-scanline-alpha);
+$blend-lights: var(--color-blend);
+
 // The preview sheet, which keeps its own palette in both themes.
 $color-paper: var(--color-paper);
 $color-paper-ink: var(--color-paper-ink);
@@ -38,12 +46,14 @@ $space-sm: 0.65rem;
 $space-md: 1rem;
 
 $radius: 0.2rem;
+$grid-size: 48px;
 $break-narrow: 768px;
 // Where the sheet earns a column of its own. Below it the editor has the whole
 // width and the export controls dock to the bottom of the viewport, so both
 // the layout and the dock have to switch on the same number.
 $break-split: 1100px;
 $break-wide: 1280px;
+$break-huge: 2200px;
 
 // $ease / $ease-out bundle a duration. Use $ease-fn when the duration is set
 // separately, otherwise the bundled duration is parsed as an animation delay.

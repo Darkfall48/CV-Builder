@@ -2,13 +2,25 @@
 @use "../setup/mixins" as *;
 
 .app-header {
-  display: flex;
+  // Included first, then overridden: the mixin lays a panel out as a column,
+  // and the header is a row. Taking it after these declarations is what kept
+  // the title and the buttons stacked.
+  @include panel;
+  flex-direction: row;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: $space-sm $space-md;
   padding: clamp(0.7rem, 1.6vh, 1.1rem) clamp(0.8rem, 1.4vw, 1.3rem);
-  @include panel;
+
+  // Where the whole interface has to fit one viewport, the header is the one
+  // part that can give height back: it holds a title and a row of buttons, and
+  // wrapping them onto two lines costs the editor a hundred pixels for nothing.
+  @media (min-width: $break-split) {
+    flex-wrap: nowrap;
+    align-items: center;
+    padding-block: clamp(0.5rem, 1vh, 0.75rem);
+  }
 
   &-identity {
     display: grid;
@@ -25,6 +37,14 @@
     max-width: 58ch;
     font-size: 0.82rem;
     color: $color-muted;
+
+    // One line beside the buttons rather than two above them. The sentence is
+    // an introduction, not a thing to study, and it is repeated in the README.
+    @media (min-width: $break-split) {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 
   &-tools {
@@ -32,6 +52,13 @@
     flex-wrap: wrap;
     align-items: center;
     gap: $space-sm;
+
+    // Never the part that gives way: the tagline truncates instead, because a
+    // button row that wraps is what made the header two lines tall.
+    @media (min-width: $break-split) {
+      flex-shrink: 0;
+      flex-wrap: nowrap;
+    }
   }
 
   &-data {
@@ -58,32 +85,55 @@
     overflow: hidden;
   }
 
+  // Equal-width buttons so the indicator can slide across thirds.
   &-lang {
+    position: relative;
     display: flex;
-    gap: 0.2rem;
-    padding: 0.15rem;
     border: 1px solid $color-line;
     border-radius: $radius;
+    overflow: hidden;
+
+    // One moving block rather than a background per button: the selection
+    // travels to the language picked instead of blinking out and in.
+    &::after {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      width: calc(100% / 3);
+      background: $color-accent;
+      transition: transform $ease;
+      pointer-events: none;
+    }
+
+    &:has(> :nth-child(2)[aria-pressed="true"])::after {
+      transform: translateX(calc(var(--dir, 1) * 100%));
+    }
+
+    &:has(> :nth-child(3)[aria-pressed="true"])::after {
+      transform: translateX(calc(var(--dir, 1) * 200%));
+    }
   }
 
   &-lang-btn {
-    padding: 0.2rem 0.5rem;
+    // Above the sliding block, which would otherwise cover the label it marks.
+    position: relative;
+    z-index: 1;
+    min-width: 2.5rem;
+    padding: 0.25rem 0.5rem;
+    text-align: center;
     font-size: 0.72rem;
     letter-spacing: 0.08em;
     color: $color-muted;
-    border-radius: $radius;
-    transition:
-      color $ease,
-      background $ease;
+    transition: color $ease;
 
     &:hover,
     &:focus-visible {
-      color: $color-text;
+      color: $color-accent;
     }
 
     &[aria-pressed="true"] {
       color: $color-on-accent;
-      background: $color-accent;
     }
   }
 
@@ -99,12 +149,14 @@
     transition:
       color $ease,
       border-color $ease,
-      background $ease;
+      background $ease,
+      box-shadow $ease;
 
     &:hover,
     &:focus-visible {
       border-color: $color-line-strong;
       background: $color-accent-dim;
+      box-shadow: 0 0 16px $color-glow;
     }
   }
 }

@@ -51,6 +51,9 @@
     "linkUrl": "URL",
     "addLink": "Ajouter un lien"
   },
+  "rail": {
+    "title": "Étapes"
+  },
   "section": {
     "summary": "Profil",
     "experience": "Expérience",
