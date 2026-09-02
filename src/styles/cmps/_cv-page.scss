@@ -233,10 +233,13 @@
   }
 
   // The dates hold the column the titles start from, which is the tab stop the
-  // export sets at the same width.
+  // export sets at the same width. An inline-block is its own block container,
+  // so it would inherit the hanging indent above and pull the dates back out of
+  // the page; the column already places them, so it starts from nothing.
   &-period {
     display: inline-block;
     min-inline-size: var(--doc-education-hanging);
+    text-indent: 0;
   }
 
   &-role {
