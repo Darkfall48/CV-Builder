@@ -1,0 +1,15 @@
+---
+description: i18next locales for the interface, and the document's own direction
+globs: src/**/*.{ts,tsx,json}
+alwaysApply: false
+---
+
+# i18n and RTL
+
+- Locales: `en` (default), `fr`, `he`. Every interface string goes through i18next. No raw English (or any language) in TSX.
+- **Two directions, and they are independent.** The interface follows the locale (`he` is RTL, set on `<html>` with `lang` and `dir`). The document carries its own `dir` on `CvDocument`, chosen by the user: an English interface can write a Hebrew CV, and the reverse. Never derive one from the other.
+- The preview frame stays `direction: ltr` so the scale transform keeps anchoring on the same edge. The paper inside it takes the document's `dir`. Do not "fix" RTL by flipping the frame.
+- A new locale key lands in all three files at once. A key present in `en` but missing in `fr` or `he` is a bug, not a fallback.
+- Do not translate proper nouns or protocol names (SAML, SCIM, SSO, LDAP, OIDC, Entra ID), and never translate what the user typed into the document.
+- Persist the chosen locale (`localStorage`). First visit may follow `navigator.language`.
+- Test both directions: switch the interface to `he`, then switch the document to RTL on its own. No clipped controls, no leftover `margin-left` or `text-align: left`.

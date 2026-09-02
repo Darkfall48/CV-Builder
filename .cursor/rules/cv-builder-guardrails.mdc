@@ -1,0 +1,16 @@
+---
+description: Stack, hosting, and ownership guardrails for the CV Builder
+alwaysApply: true
+---
+
+# CV Builder guardrails
+
+- Stay in this repo. Stack: Vite, React, TypeScript, SCSS. No Redux, no backend, no secrets in source.
+- Host on GitHub Pages (static `dist` only), base `/CV-Builder/`. Do not add a server, serverless functions, or API keys that cannot ship in a public static site.
+- **The document belongs to whoever opens the app.** Nothing in the repo is CV content: every string in the document is typed in by the user and persisted to `localStorage`. Do not add repo-authored CV data anywhere except `exampleDocument`. `src/data/skillTerms.ts` is the one repo-authored list, and it is a generic dictionary for reading job ads — not anyone's CV.
+- The document never goes through i18n. Only the interface is translated (`en` / `fr` / `he`). Do not hardcode UI strings in TSX, and do not translate what the user typed.
+- Nothing leaves the browser: no analytics, no upload, no telemetry. The `.docx` is built client-side and handed straight to a download.
+- `exampleDocument` holds the owner's real CV. Keep it in step with the reference document. No phone number, no home address, no employer-internal detail.
+- Never commit `.env` with secrets or credentials. `.gitignore` keeps `CVs/` and every `*.docx` out on purpose: an exported CV carries personal data and this repo is public. Do not loosen those entries.
+- Comments in English.
+- Commits: follow `commit-cv-builder` (approval first: title only vs agent commit). Never commit without an explicit choice.

@@ -1,0 +1,16 @@
+---
+description: React/TypeScript component and layout conventions for the CV Builder
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend
+
+- Layers: `src/model/` owns the document and its persistence, `src/services/` owns styles, export, download, and matching, `src/data/` holds the repo's own lookup tables, `src/cmps/` renders, `src/hooks/` measures. Only `App.tsx`, `main.tsx`, `i18n.ts`, and `theme.ts` sit at the root of `src/`. A component does not reach into OOXML, and a service does not import a component.
+- Functional components, TypeScript strict. No Redux, no router: the app is one page and its whole state is the document plus the offer text.
+- The document is state, not props drilled from a store: `App` holds it and passes one section down with an `onChange`. Section mutations go through `sectionOps`, never through in-place array edits.
+- Semantic HTML: `header`, `main`, `aside`, `section`, `article`, `h1`/`h2`. Do not wrap everything in `div`.
+- Every interactive or layout node has a kebab-case `className` that matches the SCSS nest (`editor-block`, `editor-block-head`). Add `title` on controls that need a native tooltip.
+- No CSS or SCSS in TSX (`style={...}`, CSS modules in the component file, `<style>`). Styles live in `src/styles/`. The one sanctioned exception is `styleProperties()` and the preview fit: those write document metrics as CSS custom properties, which are data that grows with each document style and cannot live in a stylesheet.
+- Import order, with the `//?` banner comments the codebase already uses: `//? Libraries` → `//? Content / i18n` (or `//? Data`) → `//? Components` → `//? Model` → `//? Hooks` → `//? Config` → `//? Services` → `//? Icons` → `//? Styles`. Skip the banners a file does not need.
+- If several components look the same, propose one shared component first. Do not create or merge it until the user approves.

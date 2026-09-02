@@ -1,0 +1,16 @@
+---
+description: Document model, style metrics, and DOCX/preview parity
+globs: src/model/**/*.ts,src/services/**/*.ts
+alwaysApply: false
+---
+
+# Document and export
+
+- A document style is data. Fonts, sizes, margins, gaps, indents, bullet glyphs, and which runs take bold or an underline all live as a `DocumentStyle` object in `src/services/docStyles.ts`. Adding a style is a new object there, not a branch in the renderer.
+- **The export and the preview read the same numbers.** `cvDocx.ts` turns a `DocumentStyle` into OOXML; `styleProperties()` turns the same object into CSS custom properties for `.cv-page`. Never hardcode a metric in either one, and never fix a rendering difference on one side only.
+- Text that is split for formatting is split once, in `src/model/document.ts` (`periodPrefix`, `roleHeadRuns`, `skillRuns`, `leadSpacer`). Both renderers call those helpers, so a wording or emphasis change cannot land in Word and miss the screen.
+- The page fill gauge is measured, not estimated: `usePageFill` reads the real height of the A4 preview. Anything that changes the sheet's box model changes the gauge, so keep `.cv-page-content` a flow root and keep `lineBox` in step with the font.
+- Word needs a symbol font and a code point for a specific bullet, so markers are declared as numbering definitions from the style's `BulletMarker`. The preview gets the closest standard glyph through `list-style-type`; keep the two side by side in `docStyles.ts`.
+- Changing the shape of `CvDocument` means bumping `DOCUMENT_VERSION` and giving the new field a fallback in `storage.ts`. A stored document must always open in a usable editor, never on a blank screen. `readDocument` rejects a future version and normalises everything else.
+- Nothing in the model is authored copy. `emptyDocument` seeds section headings from the interface locale, then they belong to the user; `exampleDocument` is the only place with real content.
+- After changing the export, run `npm run smoke:docx` and read the paragraph dump before claiming the file matches.

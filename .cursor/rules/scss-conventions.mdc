@@ -1,0 +1,16 @@
+---
+description: SCSS file layout and Sass conventions for the CV Builder
+globs: src/**/*.scss
+alwaysApply: false
+---
+
+# SCSS
+
+- Dart Sass `@use` only (no `@import`). Register every new partial in `src/styles/main.scss`.
+- Pages → `src/styles/pages/_<page>.scss`. Components → `src/styles/cmps/_<cmp>.scss`. Tokens → `src/styles/setup/`.
+- Nest with parent `&` so class names match JSX (`editor-block { &-head {} }`).
+- Colours come from the `$color-*` tokens in `setup/_variables.scss`, which resolve to custom properties so the light theme can swap them. Never hardcode a hex outside `setup/_theme.scss`.
+- Logical properties throughout: `margin-inline`, `padding-block`, `inset-inline-start`, `border-block-end`. The document has its own direction, so a physical `left` / `right` will break RTL.
+- Breakpoints: `$break-narrow` (768px), `$break-split` (1100px, where the sheet earns its own column and the export bar stops docking to the viewport), `$break-wide` (1280px). Layout and dock must switch on the same number.
+- `.cv-page` and everything under it is driven by the custom properties `styleProperties()` writes. A new document style must change nothing in `cmps/_cv-page.scss`; if it does, the metric belongs in `docStyles.ts`.
+- `$ease` and `$ease-out` bundle a duration. Use `$ease-fn` when the duration is set separately, or the bundled duration is parsed as a delay.
