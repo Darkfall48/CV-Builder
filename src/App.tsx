@@ -38,6 +38,8 @@ import { usePointerSpot } from "./hooks/usePointerSpot"
 import { usePreviewFit } from "./hooks/usePreviewFit"
 
 //? Services
+import { auditAts, mergeAtsFindings } from "./services/atsAudit"
+import type { AtsDocxResult } from "./services/atsDocxAudit"
 import { documentStyle, usableHeightMm } from "./services/docStyles"
 import { downloadBlob, downloadText, sanitizeFileName } from "./services/download"
 import { matchOffer } from "./services/jobMatch"
@@ -63,10 +65,14 @@ export default function App() {
   const [isBusy, setIsBusy] = useState(false)
   const [error, setError] = useState("")
   const [step, setStep] = useState<StepId>("identity")
+  const [atsDocx, setAtsDocx] = useState<AtsDocxResult | null>(null)
+  const [isAuditingAts, setIsAuditingAts] = useState(false)
+  const [atsAuditFailed, setAtsAuditFailed] = useState(false)
 
   const frameRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const atsRunRef = useRef(0)
 
   usePointerSpot()
 
@@ -74,6 +80,12 @@ export default function App() {
   const fit = usePreviewFit(frameRef, pageRef)
   const fill = usePageFill(contentRef, usableHeightMm(style))
   const match = useMemo(() => matchOffer(offer, doc), [offer, doc])
+  const atsBase = useMemo(() => auditAts(doc, offer, match), [doc, offer, match])
+  const atsReport = useMemo(
+    () =>
+      atsDocx ? mergeAtsFindings(atsBase, atsDocx.findings) : atsBase,
+    [atsBase, atsDocx],
+  )
   const isEmpty = isDocumentEmpty(doc)
 
   // A section's heading is the user's, so the rail shows what they called it
@@ -160,6 +172,15 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [doc])
 
+  // A round-trip describes one exact generated file. Any document edit makes
+  // that evidence stale, so it disappears until the user runs the check again.
+  useEffect(() => {
+    atsRunRef.current += 1
+    setAtsDocx(null)
+    setAtsAuditFailed(false)
+    setIsAuditingAts(false)
+  }, [doc])
+
   const update = (part: Partial<CvDocument>) =>
     setDoc((current) => ({ ...current, ...part }))
 
@@ -193,6 +214,22 @@ export default function App() {
       return
     }
     setDoc(parsed)
+  }
+
+  async function onRunAtsAudit() {
+    const run = atsRunRef.current + 1
+    atsRunRef.current = run
+    setIsAuditingAts(true)
+    setAtsAuditFailed(false)
+    try {
+      const { auditDocx } = await import("./services/atsDocxAudit")
+      const result = await auditDocx(doc)
+      if (atsRunRef.current === run) setAtsDocx(result)
+    } catch {
+      if (atsRunRef.current === run) setAtsAuditFailed(true)
+    } finally {
+      if (atsRunRef.current === run) setIsAuditingAts(false)
+    }
   }
 
   function onReset() {
@@ -235,6 +272,12 @@ export default function App() {
             offer={offer}
             onOfferChange={setOffer}
             match={match}
+            ats={atsReport}
+            hasDocxAudit={atsDocx !== null}
+            parsedText={atsDocx?.plainText ?? ""}
+            isAuditing={isAuditingAts}
+            auditFailed={atsAuditFailed}
+            onRunAudit={() => void onRunAtsAudit()}
           />
         )
       case "summary":

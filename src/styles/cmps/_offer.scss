@@ -73,3 +73,189 @@ html[lang="he"] .offer-legend {
   letter-spacing: 0.04em;
   text-transform: none;
 }
+
+.ats {
+  &-audit {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.7rem;
+    background: rgb($shadow-rgb / 0.16);
+    border: 1px solid $color-line;
+    border-radius: $radius;
+  }
+
+  &-audit-head {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  &-audit-title,
+  &-layer-title {
+    font-family: $font-mono;
+    text-transform: uppercase;
+  }
+
+  &-audit-title {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    color: $color-text;
+  }
+
+  &-audit-note,
+  &-audit-local,
+  &-layer-pending {
+    font-size: 0.7rem;
+    color: $color-muted;
+  }
+
+  &-audit-note {
+    margin-block-start: 0.2rem;
+    max-inline-size: 42rem;
+    line-height: 1.45;
+  }
+
+  &-audit-verdict {
+    flex: none;
+    padding: 0.12rem 0.42rem;
+    font-family: $font-mono;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    border-radius: $radius;
+
+    &.is-ready {
+      color: $color-accent;
+    }
+
+    &.is-review {
+      color: $color-accent-2;
+    }
+
+    &.is-blocked {
+      color: $color-text;
+      background: rgb($accent-2-rgb / 0.18);
+    }
+  }
+
+  &-audit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.7rem;
+    align-items: center;
+
+    .chip {
+      display: inline-flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+  }
+
+  &-audit-error {
+    font-size: 0.72rem;
+    color: $color-accent-2;
+  }
+
+  &-audit-layers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.55rem;
+  }
+
+  &-layer {
+    display: grid;
+    gap: 0.35rem;
+    align-content: start;
+    min-inline-size: 0;
+    padding: 0.55rem;
+    border: 1px solid $color-line;
+    border-radius: $radius;
+  }
+
+  &-layer-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: $color-muted;
+  }
+
+  &-finding {
+    display: grid;
+    grid-template-columns: 0.9rem minmax(0, 1fr);
+    gap: 0.35rem;
+    align-items: start;
+    font-size: 0.7rem;
+    line-height: 1.35;
+    color: $color-muted;
+
+    &.is-pass {
+      color: $color-accent;
+    }
+
+    &.is-warning {
+      color: $color-accent-2;
+    }
+
+    &.is-fail {
+      color: $color-text;
+    }
+
+    &.is-info {
+      color: $color-muted;
+    }
+  }
+
+  &-finding-icon {
+    display: grid;
+    place-items: center;
+    block-size: 1em;
+    margin-block-start: 0.12em;
+  }
+
+  &-passes,
+  &-plain {
+    font-size: 0.7rem;
+    color: $color-muted;
+
+    summary {
+      cursor: pointer;
+      font-family: $font-mono;
+      color: $color-accent;
+    }
+  }
+
+  &-passes[open] {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  &-plain {
+    padding-block-start: 0.55rem;
+    border-block-start: 1px solid $color-line;
+
+    pre {
+      max-block-size: 12rem;
+      margin-block-start: 0.5rem;
+      padding: 0.55rem;
+      overflow: auto;
+      font-family: $font-mono;
+      font-size: 0.65rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      color: $color-text;
+      background: rgb($shadow-rgb / 0.2);
+      border: 1px solid $color-line;
+      border-radius: $radius;
+    }
+  }
+}
+
+html[lang="he"] {
+  .ats-audit-title,
+  .ats-layer-title,
+  .ats-audit-verdict {
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+}
