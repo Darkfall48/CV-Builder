@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Write a one-page CV, see it fill the page live, and export it to Word. Everything stays in your browser."
+    />
+    <title>CV Builder — one page, in your browser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Interface type only. The document preview uses the same system faces
+         Word will use on export, so the two paginate alike. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Hebrew:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Set the theme before first paint so a light-theme visitor never sees
+      // a dark flash. Key must match STORAGE_KEY in src/theme.ts.
+      try {
+        var stored = localStorage.getItem("cv-builder-theme")
+        document.documentElement.dataset.theme =
+          stored === "light" ? "light" : "dark"
+      } catch (error) {
+        document.documentElement.dataset.theme = "dark"
+      }
+    </script>
+    <script type="module" crossorigin src="/CV-Builder/assets/index-MqNtwlW9.js"></script>
+    <link rel="stylesheet" crossorigin href="/CV-Builder/assets/index-CaFNMULu.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
