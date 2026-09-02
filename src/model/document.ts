@@ -367,6 +367,17 @@ export function periodPrefix(period: string): string {
   return value === "" ? "" : `${value}:  `
 }
 
+/**
+ * The same dates where the style gives them a column of their own. A short year
+ * has to leave the next word at the same place as a long range does, so the gap
+ * is the column and not a couple of spaces — a tab stop in Word, a fixed box on
+ * screen — and the label itself stops at the colon.
+ */
+export function periodLabel(period: string): string {
+  const value = period.trim()
+  return value === "" ? "" : `${value}:`
+}
+
 /** A stretch of text and whether the style should emphasise it. */
 export type InlineRun = { text: string; strong: boolean }
 

@@ -18,6 +18,7 @@ import type { INumberingOptions, IParagraphOptions, IRunOptions } from "docx"
 //? Model
 import {
   leadSpacer,
+  periodLabel,
   periodPrefix,
   roleHeadRuns,
   skillRuns,
@@ -510,13 +511,21 @@ function body(ctx: Ctx, doc: CvDocument): Paragraph[] {
       if (nonEmpty(doc.education.title)) {
         out.push(heading(ctx, doc.education.title))
       }
+      // A hanging block gives the dates a column, and the tab is what holds
+      // every title to it: "2020" is far shorter than "2022-2023", and a couple
+      // of spaces would leave the two lines starting at different places. The
+      // hanging indent is the stop the tab lands on, as on the languages line.
+      const column = style.education.hangingMm > 0
+
       entries.forEach((entry, index) => {
         const runs: TextRun[] = []
         if (nonEmpty(entry.period)) {
           runs.push(
             new TextRun(
               runOptions(ctx, {
-                text: periodPrefix(entry.period),
+                children: column
+                  ? [periodLabel(entry.period), new Tab()]
+                  : [periodPrefix(entry.period)],
                 size: halfPt(style.size.bodyPt),
               }),
             ),

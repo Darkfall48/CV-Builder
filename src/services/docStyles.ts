@@ -156,8 +156,9 @@ export type DocumentStyle = {
   /** Dates open the line plainly, so only the title itself is emphasised. */
   roleHead: { bold: boolean; underline: boolean }
   /**
-   * A hanging block: the dates open at the margin and a wrapped line comes
-   * back to `indentMm`, so the school never sits under a date.
+   * A hanging block: the dates open at the margin and both the titles and a
+   * wrapped line sit at `indentMm`, so the school never sits under a date and a
+   * short year leaves its title level with the line above.
    */
   education: {
     bold: boolean
@@ -277,9 +278,10 @@ const hud: DocumentStyle = {
     hangingMm: 6.35,
   },
   roleHead: { bold: true, underline: true },
-  // The reference hangs these off a 1418 twip indent, so the dates open at the
-  // margin and a wrapped line comes back level with the school.
-  education: { bold: false, underline: true, indentMm: 25, hangingMm: 25 },
+  // The reference declares a 1418 twip indent but pads its dates with spaces, so
+  // the titles actually land a little short of it; 22mm is where they sit. The
+  // dates open at the margin and a wrapped line comes back to the titles.
+  education: { bold: false, underline: true, indentMm: 22, hangingMm: 22 },
   // The reference hangs this line off a 1814 twip indent, so the label sits at
   // the margin and the values line up in a column of their own.
   inlineSection: {

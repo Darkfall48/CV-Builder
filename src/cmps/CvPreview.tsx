@@ -6,6 +6,7 @@ import type { CSSProperties, ReactNode, RefObject } from "react"
 import {
   isDocumentEmpty,
   leadSpacer,
+  periodLabel,
   periodPrefix,
   roleHeadRuns,
   skillRuns,
@@ -143,6 +144,7 @@ export function CvPreview({
 
   const hasName = filled(doc.identity.name)
   const hasHeadline = filled(doc.identity.headline)
+  const educationColumn = style.education.hangingMm > 0
 
   const frameStyle = {
     "--preview-scale": `${fit.scale}`,
@@ -240,7 +242,16 @@ export function CvPreview({
               ) : null}
               {education.map((entry) => (
                 <p key={entry.id} className="cv-doc-education">
-                  {periodPrefix(entry.period)}
+                  {/* The dates keep a column of their own when the style hangs
+                      the block off one, so a short year leaves the title level
+                      with the line above it. */}
+                  {filled(entry.period) && educationColumn ? (
+                    <span className="cv-doc-period">
+                      {periodLabel(entry.period)}
+                    </span>
+                  ) : (
+                    periodPrefix(entry.period)
+                  )}
                   {filled(entry.title) ? (
                     <span className="cv-doc-degree">{entry.title.trim()}</span>
                   ) : null}
