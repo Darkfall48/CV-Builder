@@ -201,10 +201,11 @@ const DOC_ACCENT_COLOR = "#4472C4"
  * bulleted profile set entirely in bold, and underlines carrying every heading
  * and job title. Built to hold a full career on one page.
  *
- * From the reference: page margins 142 / 99 twips top and bottom and 306 / 254
- * at the sides, body 21 half-points, headings 22, name 32, line rule 300/240,
- * profile indented 284 with a matching hang, lists at 720 hanging 360,
- * education and the closing note hanging off 1418 and 1814.
+ * From the reference: page margins 142 / 99 twips top and bottom and 306 at the
+ * start, body 21 half-points, headings 22, name 32, line rule 300/240, profile
+ * indented 284 with a matching hang, lists at 720 hanging 360, education and
+ * the closing note hanging off 1418 and 1814. The end margin departs from the
+ * reference's 254 twips, which printers clip.
  */
 const hud: DocumentStyle = {
   id: "hud",
@@ -215,7 +216,8 @@ const hud: DocumentStyle = {
     marginTopMm: 2.5,
     marginBottomMm: 1.75,
     marginStartMm: 5.4,
-    marginEndMm: 4.5,
+    // A quarter inch clears the non-printable edge of common home printers.
+    marginEndMm: 6.35,
   },
   size: {
     namePt: 16,
@@ -243,7 +245,7 @@ const hud: DocumentStyle = {
       gapPt: 0,
       bands: [0.5, 0.4, 1, 0.4, 0.5],
     },
-    ruleInsetMm: 5.8,
+    ruleInsetMm: 0,
     boldPhone: true,
     mutedSeparator: false,
   },
