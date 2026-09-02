@@ -1,0 +1,144 @@
+@use "../setup/variables" as *;
+
+.export-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space-sm $space-md;
+  padding: 0.7rem 0.85rem;
+  background: $color-bg-mid;
+  border: 1px solid $color-line;
+  border-radius: $radius;
+
+  // Without a column for the sheet, the preview lands under the whole editor
+  // and the page budget goes with it. Docked to the viewport instead: the one
+  // number that says whether the CV still fits is worth permanent room.
+  @media (max-width: #{$break-split - 0.02px}) {
+    position: fixed;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 20;
+    padding-block-end: calc(0.7rem + env(safe-area-inset-bottom));
+    background: $color-backdrop;
+    backdrop-filter: blur(12px);
+    border-inline: 0;
+    border-block-end: 0;
+    border-radius: 0;
+    box-shadow: 0 -10px 30px rgb($shadow-rgb / 0.35);
+  }
+
+  &-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-family: $font-mono;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    // Kept on one line: in the docked bar it shares a row with the gauge, and
+    // a wrapping label would double the height of the dock.
+    white-space: nowrap;
+    color: $color-on-accent;
+    background: $color-accent;
+    border: 1px solid $color-accent;
+    border-radius: $radius;
+    transition:
+      box-shadow $ease,
+      filter $ease;
+
+    &:hover:not(:disabled),
+    &:focus-visible:not(:disabled) {
+      box-shadow: 0 0 22px $color-glow;
+      filter: brightness(1.08);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &[aria-busy="true"] svg {
+      animation: export-spin 900ms linear infinite;
+    }
+  }
+
+  &-error {
+    flex-basis: 100%;
+    font-size: 0.76rem;
+    color: $color-accent-2;
+  }
+}
+
+.fill-bar {
+  display: grid;
+  // Shrinks rather than wraps: the gauge and the button belong on one row.
+  flex: 1 1 7rem;
+  gap: 0.3rem;
+  min-inline-size: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: $color-muted;
+
+  &.is-over {
+    color: $color-accent-2;
+  }
+
+  &-text {
+    overflow-wrap: anywhere;
+  }
+
+  // A native progress element carries the value, so the fill needs no inline
+  // style. Its two shadow parts have to be targeted per engine.
+  &-track {
+    appearance: none;
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: 3px;
+    overflow: hidden;
+    border: 0;
+    background: $color-line;
+
+    &::-webkit-progress-bar {
+      background: $color-line;
+    }
+
+    &::-webkit-progress-value {
+      background: $color-accent;
+      transition: inline-size $ease;
+    }
+
+    &::-moz-progress-bar {
+      background: $color-accent;
+    }
+  }
+
+  &.is-over &-track {
+    &::-webkit-progress-value {
+      background: $color-accent-2;
+    }
+
+    &::-moz-progress-bar {
+      background: $color-accent-2;
+    }
+  }
+}
+
+html[lang="he"] .export-bar-download {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+@keyframes export-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .export-bar-download[aria-busy="true"] svg {
+    animation: none;
+  }
+}

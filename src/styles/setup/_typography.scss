@@ -1,0 +1,43 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// The two HUD type treatments, as classes rather than per-component includes:
+// a card title and a field legend read the same everywhere in the app.
+.hud-title {
+  @include hud-title;
+}
+
+.hud-label {
+  @include hud-label;
+}
+
+.app-header-name {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.hud-index,
+.app-header-lang-btn,
+.fill-bar-text {
+  font-family: $font-mono;
+}
+
+.hud-index {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  color: rgb($accent-rgb / 0.55);
+}
+
+// Hebrew has no case and no tracking convention, so the uppercase HUD
+// treatment that reads as a label in Latin only reads as damage here.
+html[lang="he"] {
+  .app-header-name {
+    letter-spacing: 0;
+  }
+
+  .hud-title,
+  .hud-label {
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+}

@@ -1,0 +1,256 @@
+@use "../setup/variables" as *;
+
+// The sheet of paper. Everything below is driven by the custom properties that
+// `styleProperties()` writes on `.cv-page`, so a new document style is a new
+// object in docStyles.ts and nothing here changes.
+
+.cv-preview-frame {
+  // The scale anchors on the inline start edge, and an RTL interface would
+  // move that edge under the page. The paper carries its own direction.
+  direction: ltr;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.cv-page {
+  position: relative;
+  inline-size: var(--page-width);
+  min-block-size: var(--page-height);
+  margin-inline: auto;
+  padding-block: var(--page-margin-block-start) var(--page-margin-block-end);
+  padding-inline: var(--page-margin-start) var(--page-margin-end);
+  font-family: var(--doc-font);
+  font-size: var(--doc-body-size);
+  line-height: var(--doc-line-height);
+  color: $color-paper-ink;
+  background: $color-paper;
+  box-shadow: 0 8px 30px rgb($shadow-rgb / 0.45);
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: top left;
+
+  // A flow root, so the first and last child margins stay inside the box being
+  // measured. Without it the page budget would be off by a paragraph gap.
+  &-content {
+    display: flow-root;
+  }
+
+  &-empty {
+    position: absolute;
+    inset-block-start: 40%;
+    inset-inline: var(--page-margin-start);
+    font-family: $font-sans;
+    font-size: 11pt;
+    text-align: center;
+    color: rgb(0 0 0 / 0.35);
+  }
+
+  // The bottom of page one, drawn across the sheet the moment something runs
+  // past it. The paper itself keeps growing so the overflow stays readable.
+  &-limit {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(var(--page-height) - var(--page-margin-block-end));
+    display: flex;
+    justify-content: flex-end;
+    border-block-start: 1px dashed $color-accent-2;
+    opacity: 0;
+    transition: opacity $ease;
+
+    &.is-visible {
+      opacity: 1;
+    }
+
+    span {
+      padding: 0.1rem 0.4rem;
+      font-family: $font-mono;
+      font-size: 7pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: $color-on-accent;
+      background: $color-accent-2;
+    }
+  }
+}
+
+// --- Document typography ---------------------------------------------------
+
+.cv-doc {
+  // Whichever line closes the header block carries the rule and the gap under
+  // it: the name, the contacts or the headline, depending on the style.
+  .is-closing {
+    padding-block-end: 2pt;
+    margin-block-end: var(--doc-section-gap);
+    border-block-end: var(--doc-masthead-rule);
+  }
+
+  &-masthead {
+    text-align: var(--doc-masthead-align);
+
+    // Name at the start, contacts at the far end, the way a tab stop sets them
+    // in Word. Baseline-aligned, because the two are set at different sizes.
+    &.is-inline {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0 1em;
+      text-align: start;
+    }
+  }
+
+  &-name {
+    font-size: var(--doc-name-size);
+    font-weight: 700;
+  }
+
+  &-headline {
+    font-size: var(--doc-headline-size);
+    text-align: var(--doc-masthead-align);
+  }
+
+  &-contact {
+    font-size: var(--doc-contact-size);
+  }
+
+  &-phone {
+    font-weight: var(--doc-phone-weight);
+  }
+
+  &-sep {
+    color: var(--doc-rule-color);
+  }
+
+  &-link {
+    color: #1155cc;
+    text-decoration: underline;
+  }
+
+  &-section {
+    margin-block-end: var(--doc-section-gap);
+
+    // Trailing air at the foot of the page is not overflow, and counting it as
+    // such would have the gauge cry wolf on a document that fits.
+    &:last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  &-heading {
+    margin-block-end: var(--doc-heading-gap);
+    font-size: var(--doc-heading-size);
+    font-weight: 700;
+    letter-spacing: var(--doc-heading-tracking);
+    text-transform: var(--doc-heading-transform);
+    text-decoration: var(--doc-heading-decoration);
+    border-block-end: var(--doc-heading-rule);
+  }
+
+  &-lead {
+    font-weight: 700;
+  }
+
+  // Summary, bullets and skills are the same object with different settings:
+  // a marker, an indent, and whether the body is bold too. The marker is a
+  // literal glyph rather than `disc`, because the styles pick between an
+  // arrowhead, a round bullet and a ballot box.
+  &-lines {
+    list-style-position: outside;
+
+    li {
+      margin-block-end: var(--doc-paragraph-gap);
+      list-style-type: inherit;
+    }
+
+    &.is-summary {
+      padding-inline-start: var(--doc-summary-indent);
+      list-style-type: var(--doc-summary-marker);
+      font-weight: var(--doc-summary-weight);
+
+      li::marker {
+        font-weight: var(--doc-summary-marker-weight);
+      }
+
+      .cv-doc-lead {
+        text-decoration: var(--doc-summary-lead-decoration);
+      }
+    }
+
+    &.is-bullets {
+      padding-inline-start: var(--doc-bullets-indent);
+      list-style-type: var(--doc-bullets-marker);
+      font-weight: var(--doc-bullets-weight);
+
+      li::marker {
+        font-weight: var(--doc-bullets-marker-weight);
+      }
+    }
+
+    &.is-skills {
+      padding-inline-start: var(--doc-skills-indent);
+      list-style-type: var(--doc-skills-marker);
+      font-weight: var(--doc-skills-weight);
+
+      li::marker {
+        font-weight: var(--doc-skills-marker-weight);
+      }
+    }
+  }
+
+  // Tabbed in on the reference, which lands the dates level with the list
+  // text above them rather than with the heading.
+  &-education {
+    padding-inline-start: var(--doc-education-indent);
+    margin-block-end: var(--doc-paragraph-gap);
+  }
+
+  &-role {
+    // Same air between two jobs as between two sections, which is how the
+    // export spaces them.
+    & + & {
+      margin-block-start: var(--doc-section-gap);
+    }
+  }
+
+  // The dates open the line in roman: only the title carries the emphasis, so
+  // the decoration sits on the run and not on the paragraph.
+  &-role-head {
+    margin-block-end: var(--doc-paragraph-gap);
+
+    strong {
+      font-weight: var(--doc-role-weight);
+      text-decoration: var(--doc-role-decoration);
+    }
+  }
+
+  // A one-line section. The label keeps a column to itself so the values line
+  // up and a wrapped line comes back to them, which is the hanging indent the
+  // export writes.
+  &-inline {
+    display: flex;
+    gap: 0 0.4em;
+    margin-block-end: var(--doc-section-gap);
+
+    &-label {
+      flex: 0 0 auto;
+      min-inline-size: var(--doc-inline-value-offset);
+      font-size: var(--doc-inline-label-size);
+      font-weight: var(--doc-inline-label-weight);
+    }
+
+    // The colon stays outside, so the rule stops with the word.
+    &-word {
+      text-decoration: var(--doc-inline-label-decoration);
+    }
+  }
+
+  &-degree {
+    font-weight: var(--doc-education-weight);
+    text-decoration: var(--doc-education-decoration);
+  }
+
+  &-footnote {
+    font-size: var(--doc-footnote-size);
+    font-style: var(--doc-footnote-style);
+    color: var(--doc-footnote-color);
+  }
+}

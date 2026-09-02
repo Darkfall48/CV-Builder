@@ -1,0 +1,99 @@
+@use "variables" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  // Sign for inline-axis transforms that CSS logical properties cannot express.
+  --dir: 1;
+  // Plex Sans Hebrew sits in the stack so Hebrew glyphs outside the Hebrew
+  // locale, such as the language switcher label, stay inside the family.
+  // Fallback is resolved per character, not per element.
+  --font-mono: "IBM Plex Mono", "IBM Plex Sans Hebrew", ui-monospace, monospace;
+  // Floor matches the browser default so a phone or 13" laptop does not shrink.
+  font-size: clamp(16px, 0.95vw + 0.4vh, 20px);
+  background: $color-bg;
+  color: $color-text;
+}
+
+html[dir="rtl"] {
+  --dir: -1;
+}
+
+body {
+  margin: 0;
+  font-family: $font-sans;
+  font-size: 1rem;
+  line-height: 1.5;
+  background:
+    radial-gradient(
+      1200px 700px at 12% -10%,
+      rgb($accent-rgb / 0.08),
+      transparent 55%
+    ),
+    radial-gradient(900px 500px at 100% 100%, $color-halo-2, transparent 50%),
+    $color-bg;
+  transition:
+    background-color 320ms ease,
+    color 320ms ease;
+}
+
+// IBM Plex Mono carries no Hebrew glyphs, so every mono label would fall back
+// to an arbitrary system face beside the body text. Plex Sans Hebrew is the
+// family's own Hebrew companion, so the HUD stays in one typeface.
+html[lang="he"] {
+  --font-mono: #{$font-he};
+}
+
+html[lang="he"] body {
+  font-family: $font-he;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+a {
+  text-underline-offset: 0.18em;
+}
+
+:focus-visible {
+  outline: 1px solid $color-accent;
+  outline-offset: 3px;
+}

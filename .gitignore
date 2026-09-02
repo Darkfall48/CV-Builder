@@ -1,0 +1,23 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.DS_Store
+Thumbs.db
+
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Real CVs exported while testing. They carry personal data and never belong
+# in a public repo.
+CVs/
+*.docx
+
+# Build artefact of `npm run smoke:docx`.
+scripts/smoke.bundle.mjs

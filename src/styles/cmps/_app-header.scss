@@ -1,0 +1,110 @@
+@use "../setup/variables" as *;
+@use "../setup/mixins" as *;
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-sm $space-md;
+  padding: clamp(0.7rem, 1.6vh, 1.1rem) clamp(0.8rem, 1.4vw, 1.3rem);
+  @include panel;
+
+  &-identity {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  &-name {
+    font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+    line-height: 1.1;
+  }
+
+  &-tagline {
+    max-width: 58ch;
+    font-size: 0.82rem;
+    color: $color-muted;
+  }
+
+  &-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  &-data {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+  }
+
+  // Off screen rather than display:none, which some browsers refuse to open a
+  // file picker from.
+  &-file {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+  }
+
+  &-lang {
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.15rem;
+    border: 1px solid $color-line;
+    border-radius: $radius;
+  }
+
+  &-lang-btn {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: $color-muted;
+    border-radius: $radius;
+    transition:
+      color $ease,
+      background $ease;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-text;
+    }
+
+    &[aria-pressed="true"] {
+      color: $color-on-accent;
+      background: $color-accent;
+    }
+  }
+
+  &-theme {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.9rem;
+    color: $color-accent;
+    border: 1px solid $color-line;
+    border-radius: $radius;
+    transition:
+      color $ease,
+      border-color $ease,
+      background $ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: $color-line-strong;
+      background: $color-accent-dim;
+    }
+  }
+}

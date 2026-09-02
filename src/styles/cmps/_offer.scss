@@ -1,0 +1,75 @@
+@use "../setup/variables" as *;
+
+.offer {
+  &-read {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.6rem 0.7rem;
+    background: rgb($shadow-rgb / 0.16);
+    border: 1px solid $color-line;
+    border-radius: $radius;
+  }
+
+  &-coverage {
+    font-family: $font-mono;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: $color-accent;
+  }
+
+  // One shared grid for both rows: the legends size a single column, so the
+  // terms line up under each other.
+  &-rows {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 0.6rem;
+    align-items: baseline;
+    min-inline-size: 0;
+  }
+
+  // Dissolved into the grid above so both rows share one legend column.
+  &-terms {
+    display: contents;
+  }
+
+  &-legend {
+    font-family: $font-mono;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $color-muted;
+  }
+
+  &-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+  }
+
+  &-term {
+    padding: 0.08rem 0.4rem;
+    font-size: 0.72rem;
+    color: $color-text;
+    border: 1px solid rgb($accent-2-rgb / 0.45);
+    border-radius: $radius;
+  }
+
+  // What the ad asks for and the CV does not answer. Dashed and dimmed: it is
+  // a gap to close or to ignore, not an error.
+  &-terms.is-gap &-term {
+    color: $color-muted;
+    border-color: $color-line;
+    border-style: dashed;
+  }
+
+  &-empty {
+    grid-column: 1 / -1;
+    font-size: 0.76rem;
+    color: $color-muted;
+  }
+}
+
+html[lang="he"] .offer-legend {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}

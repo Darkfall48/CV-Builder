@@ -1,0 +1,52 @@
+// Colour tokens resolve at runtime so the light theme can swap them.
+// Values live in _theme.scss. Never hardcode a hex outside that file.
+$color-bg: var(--color-bg);
+$color-bg-mid: var(--color-bg-mid);
+$color-surface: var(--color-surface);
+$color-text: var(--color-text);
+$color-muted: var(--color-muted);
+$color-on-accent: var(--color-on-accent);
+
+$color-accent: var(--color-accent);
+$color-accent-2: var(--color-accent-2);
+$accent-rgb: var(--color-accent-rgb);
+$accent-2-rgb: var(--color-accent-2-rgb);
+
+$color-line: var(--color-line);
+$color-line-strong: var(--color-line-strong);
+$color-accent-dim: var(--color-accent-dim);
+$color-glow: var(--color-glow);
+$color-accent-2-dim: var(--color-accent-2-dim);
+$color-glow-2: var(--color-glow-2);
+
+$color-backdrop: var(--color-backdrop);
+$color-halo-2: var(--color-halo-2);
+$shadow-rgb: var(--color-shadow-rgb);
+$shadow-alpha: var(--color-shadow-alpha);
+
+// The preview sheet, which keeps its own palette in both themes.
+$color-paper: var(--color-paper);
+$color-paper-ink: var(--color-paper-ink);
+$color-paper-edge: var(--color-paper-edge);
+
+$font-sans: "IBM Plex Sans", "IBM Plex Sans Hebrew", "Segoe UI", sans-serif;
+// Resolved at runtime so the Hebrew locale can retarget the whole HUD layer.
+$font-mono: var(--font-mono);
+$font-he: "IBM Plex Sans Hebrew", sans-serif;
+
+$space-sm: 0.65rem;
+$space-md: 1rem;
+
+$radius: 0.2rem;
+$break-narrow: 768px;
+// Where the sheet earns a column of its own. Below it the editor has the whole
+// width and the export controls dock to the bottom of the viewport, so both
+// the layout and the dock have to switch on the same number.
+$break-split: 1100px;
+$break-wide: 1280px;
+
+// $ease / $ease-out bundle a duration. Use $ease-fn when the duration is set
+// separately, otherwise the bundled duration is parsed as an animation delay.
+$ease-fn: cubic-bezier(0.16, 1, 0.3, 1);
+$ease: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+$ease-out: 420ms $ease-fn;

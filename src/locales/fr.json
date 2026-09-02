@@ -1,0 +1,112 @@
+{
+  "app": {
+    "name": "CV Builder",
+    "tagline": "Écrivez une page, voyez-la se remplir, exportez-la en Word. Rien de ce que vous tapez ne quitte ce navigateur.",
+    "saved": "Enregistré dans ce navigateur"
+  },
+  "lang": {
+    "en": "EN",
+    "fr": "FR",
+    "he": "עב"
+  },
+  "action": {
+    "theme": "Changer de thème",
+    "add": "Ajouter",
+    "remove": "Supprimer",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "hide": "Retirer du document",
+    "show": "Remettre dans le document"
+  },
+  "data": {
+    "example": "Charger l'exemple",
+    "reset": "Repartir de zéro",
+    "export": "Enregistrer dans un fichier",
+    "import": "Ouvrir un fichier",
+    "importFailed": "Ce fichier n'est pas un document CV Builder.",
+    "resetConfirm": "Supprimer ce CV et repartir d'une page vide ?"
+  },
+  "setup": {
+    "title": "Réglages",
+    "style": "Style du document",
+    "styleHud": "Compact",
+    "styleClassic": "Classique",
+    "direction": "Sens du texte",
+    "directionLtr": "De gauche à droite",
+    "directionRtl": "De droite à gauche",
+    "directionHint": "Sens du CV lui-même, pas de cette interface.",
+    "fileName": "Nom du fichier",
+    "fileNameHint": "L'extension .docx est ajoutée au téléchargement."
+  },
+  "identity": {
+    "title": "Identité",
+    "name": "Nom complet",
+    "headline": "Accroche",
+    "headlinePlaceholder": "Ingénieur backend",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "location": "Ville",
+    "links": "Liens",
+    "linkLabel": "Libellé",
+    "linkUrl": "URL",
+    "addLink": "Ajouter un lien"
+  },
+  "section": {
+    "summary": "Profil",
+    "experience": "Expérience",
+    "education": "Formation",
+    "skills": "Compétences",
+    "languages": "Langues",
+    "heading": "Titre de la section",
+    "hidden": "Toute cette section est retirée du document."
+  },
+  "line": {
+    "lead": "Amorce",
+    "leadHint": "Mise en gras. Les quelques mots qu'un recruteur lit avant de décider de lire la suite.",
+    "text": "Suite de la ligne",
+    "role": "Intitulé du poste",
+    "company": "Entreprise",
+    "period": "Période",
+    "location": "Lieu",
+    "degree": "Diplôme",
+    "school": "Établissement",
+    "skillLabel": "Groupe",
+    "skillItems": "Liste séparée par des virgules",
+    "languages": "Langues et niveaux",
+    "languagesHint": "Une seule ligne, isolée en bas du document.",
+    "footnote": "Mention de fin",
+    "footnoteHint": "Facultatif. La dernière ligne du document, mise en forme par le style."
+  },
+  "add": {
+    "summaryLine": "Ajouter une ligne",
+    "role": "Ajouter un poste",
+    "bullet": "Ajouter une puce",
+    "education": "Ajouter une entrée",
+    "skillGroup": "Ajouter un groupe"
+  },
+  "offer": {
+    "title": "Offre d'emploi",
+    "paste": "Coller",
+    "clear": "Effacer",
+    "placeholder": "Collez l'annonce ici.",
+    "hint": "Lue dans ce navigateur avec un vocabulaire embarqué. Aucun modèle, aucun réseau.",
+    "covered": "Couvert",
+    "missing": "Manquant",
+    "none": "Rien de reconnaissable dans cette annonce pour l'instant.",
+    "allCovered": "Ce CV répond à tout ce que l'annonce nomme.",
+    "coverage": "{{covered}} sur {{total}} couverts"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "pageLimit": "Fin de la première page",
+    "fill": "{{percent}} % d'une page",
+    "over": "Dépasse d'une page de {{percent}} %",
+    "empty": "Commencez à écrire, la page apparaît ici."
+  },
+  "export": {
+    "download": "Télécharger le .docx",
+    "working": "Génération",
+    "empty": "Rien à exporter pour l'instant",
+    "failed": "Le document n'a pas pu être généré : {{reason}}"
+  }
+}

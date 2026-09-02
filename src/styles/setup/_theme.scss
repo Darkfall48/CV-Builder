@@ -1,0 +1,82 @@
+// Runtime palette. Every colour token in _variables.scss points at one of
+// these, so both themes share one set of Sass variable names.
+// The *-rgb triplets exist so components can build their own alpha variants.
+
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #070b10;
+  --color-bg-mid: #0c1218;
+  --color-surface: rgb(14 22 30 / 0.82);
+  --color-text: #e8f2f0;
+  --color-muted: #7d908c;
+  --color-on-accent: #070b10;
+
+  --color-accent: #5eead4;
+  --color-accent-rgb: 94 234 212;
+  --color-accent-2: #a78bfa;
+  --color-accent-2-rgb: 167 139 250;
+
+  --color-line: rgb(94 234 212 / 0.16);
+  --color-line-strong: rgb(94 234 212 / 0.42);
+  --color-accent-dim: rgb(94 234 212 / 0.12);
+  --color-glow: rgb(94 234 212 / 0.22);
+  --color-accent-2-dim: rgb(167 139 250 / 0.12);
+  --color-glow-2: rgb(167 139 250 / 0.2);
+
+  // Ambient layers: grid, scanline, drop shadows, backdrop.
+  --color-grid-rgb: 94 234 212;
+  --color-grid-alpha: 0.04;
+  --color-scanline-rgb: 255 255 255;
+  --color-scanline-alpha: 0.016;
+  --color-shadow-rgb: 0 0 0;
+  --color-shadow-alpha: 0.35;
+  --color-backdrop: rgb(4 8 12 / 0.62);
+  --color-halo-2: rgb(14 80 90 / 0.25);
+  // Lights add on a dark base and subtract on a light one.
+  --color-blend: screen;
+
+  // The sheet of paper stays paper in both themes: a preview that follows the
+  // interface would stop showing what the exported document looks like.
+  --color-paper: #ffffff;
+  --color-paper-ink: #14181c;
+  --color-paper-edge: rgb(0 0 0 / 0.55);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg: #f1ece2;
+  --color-bg-mid: #fbf8f2;
+  --color-surface: rgb(255 253 249 / 0.82);
+  --color-text: #14201e;
+  --color-muted: #5b6b67;
+  --color-on-accent: #fbf8f2;
+
+  --color-accent: #0d7d72;
+  --color-accent-rgb: 13 125 114;
+  --color-accent-2: #6d38d4;
+  --color-accent-2-rgb: 109 56 212;
+
+  --color-line: rgb(13 125 114 / 0.22);
+  --color-line-strong: rgb(13 125 114 / 0.5);
+  --color-accent-dim: rgb(13 125 114 / 0.1);
+  --color-glow: rgb(13 125 114 / 0.18);
+  --color-accent-2-dim: rgb(109 56 212 / 0.09);
+  --color-glow-2: rgb(109 56 212 / 0.16);
+
+  --color-grid-rgb: 13 125 114;
+  --color-grid-alpha: 0.07;
+  --color-scanline-rgb: 20 32 30;
+  --color-scanline-alpha: 0.014;
+  --color-shadow-rgb: 40 52 48;
+  --color-shadow-alpha: 0.14;
+  --color-backdrop: rgb(241 236 226 / 0.66);
+  --color-halo-2: rgb(109 56 212 / 0.12);
+  --color-blend: multiply;
+
+  --color-paper: #ffffff;
+  --color-paper-ink: #14181c;
+  --color-paper-edge: rgb(40 52 48 / 0.22);
+}

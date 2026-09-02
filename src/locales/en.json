@@ -1,0 +1,113 @@
+{
+  "app": {
+    "name": "CV Builder",
+    "tagline": "Write one page, watch it fill, export it to Word. Nothing you type leaves this browser.",
+    "saved": "Saved in this browser"
+  },
+  "lang": {
+    "en": "EN",
+    "fr": "FR",
+    "he": "עב"
+  },
+  "action": {
+    "theme": "Switch theme",
+    "add": "Add",
+    "remove": "Remove",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "hide": "Leave out of the document",
+    "show": "Put back in the document"
+  },
+  "data": {
+    "example": "Load example",
+    "reset": "Start over",
+    "export": "Save as file",
+    "import": "Open a file",
+    "importFailed": "That file is not a CV Builder document.",
+    "resetConfirm": "Delete this CV and start from an empty one?"
+  },
+  "setup": {
+    "title": "Setup",
+    "style": "Document style",
+    "styleHud": "Compact",
+    "styleClassic": "Classic",
+    "direction": "Text direction",
+    "directionLtr": "Left to right",
+    "directionRtl": "Right to left",
+    "directionHint": "Direction of the CV itself, not of this interface.",
+    "fileName": "File name",
+    "fileNameHint": "The .docx extension is added on download."
+  },
+  "identity": {
+    "title": "Identity",
+    "name": "Full name",
+    "headline": "Headline",
+    "headlinePlaceholder": "Backend Engineer",
+    "email": "Email",
+    "phone": "Phone",
+    "location": "Location",
+    "links": "Links",
+    "linkLabel": "Label",
+    "linkUrl": "URL",
+    "addLink": "Add a link"
+  },
+  "section": {
+    "summary": "Summary",
+    "experience": "Experience",
+    "education": "Education",
+    "skills": "Skills",
+    "languages": "Languages",
+    "heading": "Section heading",
+    "hidden": "This whole section is left out of the document."
+  },
+  "line": {
+    "lead": "Lead-in",
+    "leadHint": "Set in bold. The few words a recruiter reads before deciding to read the rest.",
+    "text": "Rest of the line",
+    "role": "Job title",
+    "company": "Company",
+    "period": "Period",
+    "location": "Location",
+    "degree": "Degree",
+    "school": "School",
+    "skillLabel": "Group",
+    "skillItems": "Comma-separated list",
+    "languages": "Languages and levels",
+    "languagesHint": "One line, on its own row at the foot of the document.",
+    "footnote": "Closing note",
+    "footnoteHint": "Optional. The last line of the document, set by the style."
+  },
+  "add": {
+    "summaryLine": "Add a line",
+    "role": "Add a role",
+    "bullet": "Add a bullet",
+    "education": "Add an entry",
+    "skillGroup": "Add a group"
+  },
+  "offer": {
+    "title": "Job offer",
+    "paste": "Paste",
+    "clear": "Clear",
+    "placeholder": "Paste the job ad here.",
+    "hint": "Read in this browser against a built-in vocabulary. No model, no network.",
+    "pasteFailed": "Your browser would not hand over the clipboard. Paste into the box instead.",
+    "covered": "Answered",
+    "missing": "Missing",
+    "none": "Nothing recognisable in this ad yet.",
+    "allCovered": "This CV answers everything the ad names.",
+    "coverage": "{{covered}} of {{total}} answered"
+  },
+  "preview": {
+    "title": "Preview",
+    "pageLimit": "End of page one",
+    "fill": "{{percent}}% of one page",
+    "over": "Over one page by {{percent}}%",
+    "empty": "Start writing and the page appears here."
+  },
+  "export": {
+    "download": "Download .docx",
+    "working": "Building",
+    "empty": "Nothing to export yet",
+    "failed": "The document could not be built: {{reason}}"
+  }
+}

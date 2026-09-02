@@ -1,0 +1,85 @@
+@use "../setup/variables" as *;
+@use "../setup/mixins" as *;
+
+$pad: clamp(0.9rem, 2vw, 1.8rem);
+// Enough for the docked bar at its tallest, which is one line of gauge text
+// beside the button. Measured, not guessed: an error message pushes it taller,
+// and the dock is allowed to cover a little content when that happens.
+$dock: 4.4rem;
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.4vh, 1.6rem);
+  min-height: 100vh;
+  padding: $pad;
+  padding-block-end: calc($pad + env(safe-area-inset-bottom));
+
+  // Room under the last block so the dock never sits on top of it.
+  @media (max-width: #{$break-split - 0.02px}) {
+    padding-block-end: calc($dock + $pad + env(safe-area-inset-bottom));
+  }
+
+  &-main {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.8rem);
+    align-items: start;
+    grid-template-columns: minmax(0, 1fr);
+
+    // The sheet needs its own column before it is worth showing beside the
+    // editor; below that width it would be scaled down to a thumbnail.
+    @media (min-width: $break-split) {
+      grid-template-columns: minmax(0, 1.05fr) minmax(24rem, 0.95fr);
+    }
+  }
+
+  &-editor {
+    display: grid;
+    gap: clamp(0.7rem, 1.4vh, 1.1rem);
+    align-content: start;
+    min-width: 0;
+  }
+
+  &-editor-note {
+    padding-inline: 0.2rem;
+    font-family: $font-mono;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: $color-muted;
+  }
+
+  &-preview {
+    display: grid;
+    gap: $space-sm;
+    align-content: start;
+    min-width: 0;
+
+    // Following the editor down is the whole point: a page budget you have to
+    // scroll back to is a number you stop reading.
+    @media (min-width: $break-split) {
+      position: sticky;
+      inset-block-start: $pad;
+      max-height: calc(100vh - 2 * $pad);
+      // Title, sheet, export bar. Only the middle row scrolls, so the gauge
+      // and the download button stay put however long the document gets.
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      align-content: stretch;
+    }
+  }
+
+  &-preview-scroll {
+    min-width: 0;
+
+    @media (min-width: $break-split) {
+      overflow: auto;
+      // Reserved, not conditional: a scrollbar appearing changes the width the
+      // sheet is scaled to fit, which would rescale the sheet, which is what
+      // made the scrollbar appear.
+      scrollbar-gutter: stable;
+    }
+  }
+
+  &-preview-title {
+    padding-inline: 0.2rem;
+  }
+}
