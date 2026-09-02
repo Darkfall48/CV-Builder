@@ -291,7 +291,7 @@ const hud: DocumentStyle = {
     valueOffsetMm: 32,
   },
   footnote: {
-    italic: false,
+    italic: true,
     muted: false,
     alignEnd: true,
     indentMm: 32,
