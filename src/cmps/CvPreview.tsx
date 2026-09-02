@@ -1,4 +1,5 @@
 //? Libraries
+import { Fragment } from "react"
 import { useTranslation } from "react-i18next"
 import type { CSSProperties, ReactNode, RefObject } from "react"
 
@@ -19,6 +20,7 @@ import type { PreviewFit } from "../hooks/usePreviewFit"
 
 //? Services
 import { documentStyle, styleProperties } from "../services/docStyles"
+import { markedRuns } from "../services/jobMatch"
 
 type Props = {
   doc: CvDocument
@@ -27,24 +29,55 @@ type Props = {
   contentRef: RefObject<HTMLDivElement | null>
   fit: PreviewFit
   isOver: boolean
+  /** Spellings the pasted job ad asked for, highlighted where they appear. */
+  asked: readonly RegExp[]
 }
 
 const filled = (value: string) => value.trim() !== ""
 const hasCopy = (line: CvLine) => filled(line.lead) || filled(line.text)
 
 /**
+ * The words a pasted job ad named, picked out of the sentence they sit in. The
+ * highlight is an editor aid: it exists only on screen, and the export knows
+ * nothing about it.
+ */
+function Marked({
+  text,
+  asked,
+}: {
+  text: string
+  asked: readonly RegExp[]
+}) {
+  return (
+    <>
+      {markedRuns(text, asked).map((run, index) =>
+        run.marked ? (
+          <mark key={index} className="cv-doc-match">
+            {run.text}
+          </mark>
+        ) : (
+          <Fragment key={index}>{run.text}</Fragment>
+        ),
+      )}
+    </>
+  )
+}
+
+/**
  * A lead-in and its sentence. Whether the lead is underlined and whether the
  * rest is bold are both style decisions, so they arrive as CSS properties on
  * the list rather than as props here.
  */
-function Line({ line }: { line: CvLine }) {
+function Line({ line, asked }: { line: CvLine; asked: readonly RegExp[] }) {
   return (
     <>
       {filled(line.lead) ? (
-        <strong className="cv-doc-lead">{line.lead}</strong>
+        <strong className="cv-doc-lead">
+          <Marked text={line.lead} asked={asked} />
+        </strong>
       ) : null}
       {leadSpacer(line.lead, line.text)}
-      {line.text}
+      <Marked text={line.text} asked={asked} />
     </>
   )
 }
@@ -57,14 +90,24 @@ function Lines({ kind, children }: { kind: string; children: ReactNode }) {
  * Pre-split text where only some stretches take the emphasis. Keyed by
  * position, which is stable here: the parts are a pure function of the text.
  */
-function Emphasised({ parts }: { parts: InlineRun[] }) {
+function Emphasised({
+  parts,
+  asked,
+}: {
+  parts: InlineRun[]
+  asked: readonly RegExp[]
+}) {
   return (
     <>
       {parts.map((part, index) =>
         part.strong ? (
-          <strong key={index}>{part.text}</strong>
+          <strong key={index}>
+            <Marked text={part.text} asked={asked} />
+          </strong>
         ) : (
-          <span key={index}>{part.text}</span>
+          <span key={index}>
+            <Marked text={part.text} asked={asked} />
+          </span>
         ),
       )}
     </>
@@ -84,6 +127,7 @@ export function CvPreview({
   contentRef,
   fit,
   isOver,
+  asked,
 }: Props) {
   const { t } = useTranslation()
   const style = documentStyle(doc.styleId)
@@ -196,7 +240,7 @@ export function CvPreview({
               <Lines kind="summary">
                 {summary.map((line) => (
                   <li key={line.id}>
-                    <Line line={line} />
+                    <Line line={line} asked={asked} />
                   </li>
                 ))}
               </Lines>
@@ -218,14 +262,14 @@ export function CvPreview({
                   <div key={role.id} className="cv-doc-role">
                     {head.length > 0 ? (
                       <p className="cv-doc-role-head">
-                        <Emphasised parts={head} />
+                        <Emphasised parts={head} asked={asked} />
                       </p>
                     ) : null}
                     {bullets.length > 0 ? (
                       <Lines kind="bullets">
                         {bullets.map((bullet) => (
                           <li key={bullet.id}>
-                            <Line line={bullet} />
+                            <Line line={bullet} asked={asked} />
                           </li>
                         ))}
                       </Lines>
@@ -254,11 +298,16 @@ export function CvPreview({
                     periodPrefix(entry.period)
                   )}
                   {filled(entry.title) ? (
-                    <span className="cv-doc-degree">{entry.title.trim()}</span>
+                    <span className="cv-doc-degree">
+                      <Marked text={entry.title.trim()} asked={asked} />
+                    </span>
                   ) : null}
-                  {filled(entry.school)
-                    ? `${filled(entry.period) || filled(entry.title) ? ", " : ""}${entry.school}`
-                    : null}
+                  {filled(entry.school) ? (
+                    <>
+                      {filled(entry.period) || filled(entry.title) ? ", " : ""}
+                      <Marked text={entry.school} asked={asked} />
+                    </>
+                  ) : null}
                 </p>
               ))}
             </section>
@@ -272,7 +321,10 @@ export function CvPreview({
               <Lines kind="skills">
                 {skills.map((group) => (
                   <li key={group.id}>
-                    <Emphasised parts={skillRuns(group.label, group.items)} />
+                    <Emphasised
+                      parts={skillRuns(group.label, group.items)}
+                      asked={asked}
+                    />
                   </li>
                 ))}
               </Lines>

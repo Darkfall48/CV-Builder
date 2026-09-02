@@ -177,6 +177,16 @@
     font-weight: 700;
   }
 
+  // A term the pasted ad named. An editor aid, not document styling: it never
+  // reaches the export. Background only, with no padding or border — an inline
+  // box that grew could rewrap the line and move the page budget measured off
+  // it, and the gauge would report a page the export does not have.
+  &-match {
+    color: inherit;
+    background: rgb($accent-rgb / 0.35);
+    box-decoration-break: clone;
+  }
+
   // Summary, bullets and skills are the same object with different settings:
   // a marker, an indent, and whether the body is bold too. The marker is a
   // literal glyph rather than `disc`, because the styles pick between an

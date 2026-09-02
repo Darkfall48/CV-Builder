@@ -358,6 +358,7 @@ export default function App() {
                 contentRef={contentRef}
                 fit={fit}
                 isOver={fill > 1}
+                asked={match.askedPatterns}
               />
             </div>
             <ExportBar
