@@ -55,6 +55,26 @@ const PLAIN: BulletMarker = {
   preview: "•",
 }
 
+/**
+ * A horizontal rule. Word draws one as a paragraph border and only offers the
+ * patterns in its own gallery, so the shape is stated as bands of ink and gap
+ * rather than as a border keyword: the renderer picks the pattern that matches,
+ * and the preview paints the same proportions as gradient stops.
+ */
+export type DocRule = {
+  /** Thickness of the whole stack of bands, in points. */
+  widthPt: number
+  color: string
+  /** Air between the text and the rule, in points. */
+  gapPt: number
+  /**
+   * Ink and gap widths alternating, ink first, in any consistent unit. One
+   * band is a plain line; five make the thin-thick-thin of the reference, in
+   * the proportions Word draws it — half-width outer lines and medium gaps.
+   */
+  bands: number[]
+}
+
 /** How one kind of line is set. Summary, bullets and skills each get one. */
 export type LineStyle = {
   /** Null for a line that is not a list item at all. */
@@ -104,16 +124,30 @@ export type DocumentStyle = {
     centred: boolean
     /** Name and contacts share one line, contacts pushed to the far end. */
     inlineContact: boolean
+    /**
+     * Blank line opening the page, given as the size of the run that holds it,
+     * which is how the reference document sets the name off the top margin.
+     */
+    leadPt: number
     /** Horizontal rule closing the header block. */
-    rule: boolean
+    rule: DocRule | null
+    /**
+     * How far short of the end margin the rule stops — and with it the
+     * contacts, which ride a tab stop out to the same edge.
+     */
+    ruleInsetMm: number
     /** The phone number set bold, the way a CV meant to be called sets it. */
     boldPhone: boolean
+    /** Separators between contacts set in the muted ink rather than in black. */
+    mutedSeparator: boolean
   }
   heading: {
     uppercase: boolean
     underline: boolean
     /** Rule running the full text width under the heading. */
-    rule: boolean
+    rule: DocRule | null
+    /** Air between the heading and the first line under it, in points. */
+    gapPt: number
     letterSpacingPt: number
   }
   summary: LineStyle
@@ -121,7 +155,16 @@ export type DocumentStyle = {
   skills: LineStyle
   /** Dates open the line plainly, so only the title itself is emphasised. */
   roleHead: { bold: boolean; underline: boolean }
-  education: { bold: boolean; underline: boolean; indentMm: number }
+  /**
+   * A hanging block: the dates open at the margin and a wrapped line comes
+   * back to `indentMm`, so the school never sits under a date.
+   */
+  education: {
+    bold: boolean
+    underline: boolean
+    indentMm: number
+    hangingMm: number
+  }
   /** A one-line section: label at the start, values in a second column. */
   inlineSection: {
     headingSize: boolean
@@ -130,10 +173,26 @@ export type DocumentStyle = {
     /** Where the values start, and where a wrapped line comes back to. */
     valueOffsetMm: number
   }
-  footnote: { italic: boolean; muted: boolean }
+  footnote: {
+    italic: boolean
+    muted: boolean
+    /** Set against the end margin, the way a closing aside reads. */
+    alignEnd: boolean
+    indentMm: number
+    hangingMm: number
+  }
 }
 
 const A4 = { widthMm: 210, heightMm: 297 }
+
+/** Muted ink, shared by rules, separators and anything set quietly. */
+export const DOC_RULE_COLOR = "#808080"
+
+/** Word's own hyperlink colour, which the reference document inherits. */
+export const DOC_LINK_COLOR = "#0563C1"
+
+/** The accent the reference draws its header rule in. */
+const DOC_ACCENT_COLOR = "#4472C4"
 
 /**
  * The portfolio CV, measured off the reference document rather than guessed at.
@@ -143,7 +202,8 @@ const A4 = { widthMm: 210, heightMm: 297 }
  *
  * From the reference: page margins 142 / 99 twips top and bottom and 306 / 254
  * at the sides, body 21 half-points, headings 22, name 32, line rule 300/240,
- * profile indented 284 with a matching hang, lists at 720 hanging 360.
+ * profile indented 284 with a matching hang, lists at 720 hanging 360,
+ * education and the closing note hanging off 1418 and 1814.
  */
 const hud: DocumentStyle = {
   id: "hud",
@@ -170,11 +230,27 @@ const hud: DocumentStyle = {
   // The reference separates sections with an empty paragraph carrying a 4pt
   // run, which comes out at 4 × 1.15 × 1.25 points of height.
   sectionGapPt: 5.75,
-  masthead: { centred: false, inlineContact: true, rule: true, boldPhone: true },
+  masthead: {
+    centred: false,
+    inlineContact: true,
+    leadPt: 5.5,
+    // Drawn in the reference as a triple connector rather than a border, which
+    // Word's own gallery matches with its thin-thick-thin medium gap.
+    rule: {
+      widthPt: 5,
+      color: DOC_ACCENT_COLOR,
+      gapPt: 0,
+      bands: [0.5, 0.4, 1, 0.4, 0.5],
+    },
+    ruleInsetMm: 5.8,
+    boldPhone: true,
+    mutedSeparator: false,
+  },
   heading: {
     uppercase: false,
     underline: true,
-    rule: false,
+    rule: null,
+    gapPt: 0,
     letterSpacingPt: 0,
   },
   // The profile is the one block a recruiter reads whole, so the reference
@@ -201,8 +277,9 @@ const hud: DocumentStyle = {
     hangingMm: 6.35,
   },
   roleHead: { bold: true, underline: true },
-  // Tabbed in on the reference, which lands them level with the list text.
-  education: { bold: false, underline: true, indentMm: 12.7 },
+  // The reference hangs these off a 1418 twip indent, so the dates open at the
+  // margin and a wrapped line comes back level with the school.
+  education: { bold: false, underline: true, indentMm: 25, hangingMm: 25 },
   // The reference hangs this line off a 1814 twip indent, so the label sits at
   // the margin and the values line up in a column of their own.
   inlineSection: {
@@ -211,7 +288,13 @@ const hud: DocumentStyle = {
     underline: true,
     valueOffsetMm: 32,
   },
-  footnote: { italic: false, muted: false },
+  footnote: {
+    italic: false,
+    muted: false,
+    alignEnd: true,
+    indentMm: 32,
+    hangingMm: 32,
+  },
 }
 
 /**
@@ -245,13 +328,17 @@ const classic: DocumentStyle = {
   masthead: {
     centred: true,
     inlineContact: false,
-    rule: false,
+    leadPt: 0,
+    rule: null,
+    ruleInsetMm: 0,
     boldPhone: false,
+    mutedSeparator: true,
   },
   heading: {
     uppercase: true,
     underline: false,
-    rule: true,
+    rule: { widthPt: 0.5, color: DOC_RULE_COLOR, gapPt: 2, bands: [1] },
+    gapPt: 3,
     letterSpacingPt: 1.2,
   },
   summary: {
@@ -276,14 +363,20 @@ const classic: DocumentStyle = {
     hangingMm: 0,
   },
   roleHead: { bold: true, underline: false },
-  education: { bold: true, underline: false, indentMm: 0 },
+  education: { bold: true, underline: false, indentMm: 0, hangingMm: 0 },
   inlineSection: {
     headingSize: false,
     bold: true,
     underline: false,
     valueOffsetMm: 26,
   },
-  footnote: { italic: true, muted: true },
+  footnote: {
+    italic: true,
+    muted: true,
+    alignEnd: false,
+    indentMm: 0,
+    hangingMm: 0,
+  },
 }
 
 export const DOCUMENT_STYLES: Record<StyleId, DocumentStyle> = { hud, classic }
@@ -306,9 +399,6 @@ export function textWidthMm(style: DocumentStyle): number {
   return style.page.widthMm - style.page.marginStartMm - style.page.marginEndMm
 }
 
-/** Rules and the muted ink they share, stated once for both renderers. */
-export const DOC_RULE_COLOR = "#808080"
-
 /** The three list kinds, so both renderers can walk them the same way. */
 export const LINE_KINDS = ["summary", "bullets", "skills"] as const
 export type LineKind = (typeof LINE_KINDS)[number]
@@ -316,6 +406,36 @@ export type LineKind = (typeof LINE_KINDS)[number]
 const marker = (line: LineStyle) =>
   line.bullet ? `"${line.bullet.preview}"` : "none"
 const weight = (bold: boolean) => (bold ? "700" : "400")
+
+/**
+ * A rule as a paint. The browser has no equivalent of Word's banded border
+ * patterns, so the bands are laid out as hard gradient stops holding the same
+ * proportions, which comes out the same thickness and the same shape.
+ */
+function ruleFill(rule: DocRule): string {
+  const total = rule.bands.reduce((sum, band) => sum + band, 0)
+  const stops: string[] = []
+  let from = 0
+  rule.bands.forEach((band, index) => {
+    const to = from + (band / total) * 100
+    const paint = index % 2 === 0 ? rule.color : "transparent"
+    stops.push(`${paint} ${from.toFixed(2)}% ${to.toFixed(2)}%`)
+    from = to
+  })
+  return `linear-gradient(to bottom, ${stops.join(", ")})`
+}
+
+/** The three properties a rule needs on the page, or nothing to draw. */
+function ruleProperties(
+  name: string,
+  rule: DocRule | null,
+): Record<string, string> {
+  return {
+    [`--doc-${name}-rule-size`]: `${rule ? rule.widthPt : 0}pt`,
+    [`--doc-${name}-rule-gap`]: `${rule ? rule.gapPt : 0}pt`,
+    [`--doc-${name}-rule-fill`]: rule ? ruleFill(rule) : "none",
+  }
+}
 
 /**
  * The style as CSS custom properties. This is the one place the app writes an
@@ -357,15 +477,18 @@ export function styleProperties(style: DocumentStyle): Record<string, string> {
     "--doc-paragraph-gap": `${style.paragraphGapPt}pt`,
     "--doc-section-gap": `${style.sectionGapPt}pt`,
     "--doc-rule-color": DOC_RULE_COLOR,
+    "--doc-link-color": DOC_LINK_COLOR,
     "--doc-masthead-align": masthead.centred ? "center" : "start",
-    "--doc-masthead-rule": masthead.rule
-      ? `0.75pt solid ${DOC_RULE_COLOR}`
-      : "0",
+    ...ruleProperties("masthead", masthead.rule),
+    "--doc-masthead-rule-inset": `${masthead.ruleInsetMm}mm`,
     "--doc-phone-weight": weight(masthead.boldPhone),
+    "--doc-sep-color": masthead.mutedSeparator
+      ? DOC_RULE_COLOR
+      : "currentColor",
     "--doc-heading-transform": heading.uppercase ? "uppercase" : "none",
     "--doc-heading-decoration": heading.underline ? "underline" : "none",
-    "--doc-heading-rule": heading.rule ? `0.5pt solid ${DOC_RULE_COLOR}` : "0",
-    "--doc-heading-gap": `${heading.rule ? 3 : 1}pt`,
+    ...ruleProperties("heading", heading.rule),
+    "--doc-heading-gap": `${heading.gapPt}pt`,
     "--doc-heading-tracking": `${heading.letterSpacingPt}pt`,
     ...lines,
     "--doc-role-decoration": style.roleHead.underline ? "underline" : "none",
@@ -375,6 +498,7 @@ export function styleProperties(style: DocumentStyle): Record<string, string> {
       : "none",
     "--doc-education-weight": weight(style.education.bold),
     "--doc-education-indent": `${style.education.indentMm}mm`,
+    "--doc-education-hanging": `${style.education.hangingMm}mm`,
     "--doc-inline-label-size": style.inlineSection.headingSize
       ? `${size.headingPt}pt`
       : `${size.bodyPt}pt`,
@@ -387,5 +511,8 @@ export function styleProperties(style: DocumentStyle): Record<string, string> {
     "--doc-footnote-color": style.footnote.muted
       ? DOC_RULE_COLOR
       : "currentColor",
+    "--doc-footnote-align": style.footnote.alignEnd ? "end" : "start",
+    "--doc-footnote-indent": `${style.footnote.indentMm}mm`,
+    "--doc-footnote-hanging": `${style.footnote.hangingMm}mm`,
   }
 }

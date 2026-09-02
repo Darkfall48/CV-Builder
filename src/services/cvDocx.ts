@@ -27,12 +27,13 @@ import type { CvDocument, CvLine } from "../model/types"
 
 //? Services
 import {
+  DOC_LINK_COLOR,
   DOC_RULE_COLOR,
   LINE_KINDS,
   documentStyle,
   textWidthMm,
 } from "./docStyles"
-import type { DocumentStyle, LineKind, LineStyle } from "./docStyles"
+import type { DocRule, DocumentStyle, LineKind, LineStyle } from "./docStyles"
 
 const mm = (value: number) => Math.round((value * 1440) / 25.4)
 /** Word states type in half-points, so an odd size like 10.5pt is 21. */
@@ -42,9 +43,37 @@ const twip = (points: number) => Math.round(points * 20)
 const eighthPt = (points: number) => Math.round(points * 8)
 
 // OOXML writes colours bare, CSS writes them with a hash.
-const RULE_COLOR = DOC_RULE_COLOR.replace("#", "")
+const bare = (color: string) => color.replace("#", "")
+const RULE_COLOR = bare(DOC_RULE_COLOR)
 const INK = "000000"
-const LINK_COLOR = "1155CC"
+const LINK_COLOR = bare(DOC_LINK_COLOR)
+
+/**
+ * A rule as a paragraph border. Word will not take an arbitrary stack of lines,
+ * so the style's bands choose between the two patterns in its gallery that the
+ * document styles actually call for.
+ *
+ * A banded pattern is sized by its thickest band and Word grows the rest of the
+ * stack around it, so the declared width — which is the whole stack — is scaled
+ * down by that band's share of it. A plain rule has one band and comes through
+ * unchanged.
+ */
+function bottomBorder(rule: DocRule) {
+  const total = rule.bands.reduce((sum, band) => sum + band, 0)
+  const thickest = Math.max(...rule.bands)
+
+  return {
+    bottom: {
+      style:
+        rule.bands.length > 1
+          ? BorderStyle.THIN_THICK_THIN_MEDIUM_GAP
+          : BorderStyle.SINGLE,
+      size: eighthPt((rule.widthPt * thickest) / total),
+      color: bare(rule.color),
+      space: rule.gapPt,
+    },
+  }
+}
 
 type Ctx = {
   style: DocumentStyle
@@ -228,7 +257,7 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
         runOptions(ctx, {
           text: " | ",
           size: halfPt(style.size.contactPt),
-          color: RULE_COLOR,
+          color: style.masthead.mutedSeparator ? RULE_COLOR : INK,
         }),
       ),
     )
@@ -280,7 +309,9 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
 
   // --- Lines of the header block ---
   // One line, with the contacts pushed to the far edge by a tab stop rather
-  // than by the run of spaces the reference document used.
+  // than by the run of spaces the reference document used. The inset stops
+  // them — and the rule below — short of the margin, as the reference does.
+  const inset = mm(style.masthead.ruleInsetMm)
   if (style.masthead.inlineContact && contact.length > 0) {
     const tab = new TextRun(
       runOptions(ctx, {
@@ -291,7 +322,13 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
     lines.push({
       children: [nameRun, tab, ...contact],
       options: {
-        tabStops: [{ type: TabStopType.END, position: mm(textWidthMm(style)) }],
+        indent: { end: inset },
+        tabStops: [
+          {
+            type: TabStopType.END,
+            position: mm(textWidthMm(style) - style.masthead.ruleInsetMm),
+          },
+        ],
       },
     })
   } else {
@@ -322,30 +359,35 @@ function masthead(ctx: Ctx, doc: CvDocument): Paragraph[] {
   // The rule and the gap close the header as a whole, so they go on its last
   // line — the name, the contacts or the headline, depending on what is filled.
   const closing: Partial<IParagraphOptions> = {
+    indent: { end: inset },
     spacing: {
       line: Math.round(240 * style.lineHeight),
       lineRule: LineRuleType.AUTO,
       after: twip(style.sectionGapPt),
     },
     border: style.masthead.rule
-      ? {
-          bottom: {
-            style: BorderStyle.SINGLE,
-            size: eighthPt(0.75),
-            color: RULE_COLOR,
-            space: 4,
-          },
-        }
+      ? bottomBorder(style.masthead.rule)
       : undefined,
   }
 
-  return lines.map(({ children, options }, index) =>
+  const block = lines.map(({ children, options }, index) =>
     paragraph(
       ctx,
       children,
       index === lines.length - 1 ? { ...options, ...closing } : options,
     ),
   )
+
+  // A blank line above the name, which is how the reference sets the header off
+  // the top margin. An empty paragraph takes its height from its own mark, not
+  // from a run, so the size goes there or the line comes out body-height.
+  if (style.masthead.leadPt > 0) {
+    block.unshift(
+      paragraph(ctx, [], { run: { size: halfPt(style.masthead.leadPt) } }),
+    )
+  }
+
+  return block
 }
 
 function heading(ctx: Ctx, title: string): Paragraph {
@@ -371,18 +413,9 @@ function heading(ctx: Ctx, title: string): Paragraph {
       spacing: {
         line: Math.round(240 * style.lineHeight),
         lineRule: LineRuleType.AUTO,
-        after: twip(style.heading.rule ? 3 : 1),
+        after: twip(style.heading.gapPt),
       },
-      border: style.heading.rule
-        ? {
-            bottom: {
-              style: BorderStyle.SINGLE,
-              size: eighthPt(0.5),
-              color: RULE_COLOR,
-              space: 2,
-            },
-          }
-        : undefined,
+      border: style.heading.rule ? bottomBorder(style.heading.rule) : undefined,
     },
   )
 }
@@ -513,7 +546,10 @@ function body(ctx: Ctx, doc: CvDocument): Paragraph[] {
         }
         out.push(
           paragraph(ctx, runs, {
-            indent: { start: mm(style.education.indentMm) },
+            indent: {
+              start: mm(style.education.indentMm),
+              hanging: mm(style.education.hangingMm),
+            },
             spacing: gap(
               index === entries.length - 1
                 ? style.sectionGapPt
@@ -610,6 +646,7 @@ function body(ctx: Ctx, doc: CvDocument): Paragraph[] {
   }
 
   if (nonEmpty(doc.footnote)) {
+    const { footnote } = style
     out.push(
       paragraph(
         ctx,
@@ -617,13 +654,20 @@ function body(ctx: Ctx, doc: CvDocument): Paragraph[] {
           new TextRun(
             runOptions(ctx, {
               text: doc.footnote,
-              italics: style.footnote.italic,
+              italics: footnote.italic,
               size: halfPt(style.size.footnotePt),
-              color: style.footnote.muted ? RULE_COLOR : INK,
+              color: footnote.muted ? RULE_COLOR : INK,
             }),
           ),
         ],
-        { spacing: gap(0) },
+        {
+          alignment: footnote.alignEnd ? AlignmentType.END : undefined,
+          indent: {
+            start: mm(footnote.indentMm),
+            hanging: mm(footnote.hangingMm),
+          },
+          spacing: gap(0),
+        },
       ),
     )
   }
