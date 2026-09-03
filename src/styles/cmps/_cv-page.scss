@@ -276,7 +276,8 @@
   // export writes.
   &-inline {
     display: flex;
-    gap: 0 0.4em;
+    // No gap: the column alone sets where the values start, the way the tab
+    // stop does in Word. A gap here would widen only this side.
     margin-block-end: var(--doc-section-gap);
 
     &-label {

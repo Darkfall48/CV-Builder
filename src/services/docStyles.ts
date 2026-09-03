@@ -284,13 +284,13 @@ const hud: DocumentStyle = {
   // the titles actually land a little short of it; 22mm is where they sit. The
   // dates open at the margin and a wrapped line comes back to the titles.
   education: { bold: false, underline: true, indentMm: 22, hangingMm: 22 },
-  // The reference hangs this line off a 1814 twip indent, so the label sits at
-  // the margin and the values line up in a column of their own.
+  // "Languages:" at heading size measures 21.8mm, so the column clears it by
+  // about two spaces rather than opening a gap the width of the old indent.
   inlineSection: {
     headingSize: true,
     bold: true,
     underline: true,
-    valueOffsetMm: 32,
+    valueOffsetMm: 24,
   },
   footnote: {
     italic: true,
